@@ -16,7 +16,7 @@ import { ProjectHypothesis } from "./details/ProjectHypothesis";
 import { ProjectMaterials } from "./details/ProjectMaterials";
 import { ProjectFiles } from "./details/ProjectFiles";
 import { ProjectNotes } from "./details/ProjectNotes";
-import { ExperimentResults } from "./ExperimentResults";
+import { ExperimentResults } from "@/components/projects/ExperimentResults";
 
 interface ProjectDetailsProps {
   project: Project | null;
