@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Loader2, Sparkles } from "lucide-react";
 
 interface ProjectNotesProps {
   projectId: string;
@@ -13,6 +14,8 @@ interface ProjectNotesProps {
 
 export const ProjectNotes = ({ projectId, notes }: ProjectNotesProps) => {
   const [newNote, setNewNote] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<string | null>(null);
   const { toast } = useToast();
 
   const addNote = async () => {
@@ -42,10 +45,68 @@ export const ProjectNotes = ({ projectId, notes }: ProjectNotesProps) => {
     setNewNote("");
   };
 
+  const analyzeNotes = async () => {
+    if (notes.length === 0) {
+      toast({
+        title: "No notes to analyze",
+        description: "Add some observation notes first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    try {
+      const { data: projectData } = await supabase
+        .from("projects")
+        .select("title")
+        .eq("id", projectId)
+        .single();
+
+      const { data, error } = await supabase.functions.invoke('analyze-notes', {
+        body: {
+          notes,
+          projectTitle: projectData?.title || "Unknown Project"
+        }
+      });
+
+      if (error) throw error;
+
+      setAnalysis(data.analysis);
+      toast({
+        title: "Analysis Complete",
+        description: "AI has analyzed your observation notes.",
+      });
+    } catch (error) {
+      toast({
+        title: "Analysis Failed",
+        description: "Unable to analyze the notes. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lab Notes</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Lab Notes</CardTitle>
+          <Button
+            onClick={analyzeNotes}
+            disabled={isAnalyzing || notes.length === 0}
+            variant="outline"
+            className="gap-2"
+          >
+            {isAnalyzing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
+            Analyze Notes
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -58,6 +119,13 @@ export const ProjectNotes = ({ projectId, notes }: ProjectNotesProps) => {
             Add Note
           </Button>
         </div>
+
+        {analysis && (
+          <div className="bg-muted p-4 rounded-lg space-y-2 mt-4">
+            <h4 className="font-semibold">AI Analysis</h4>
+            <p className="whitespace-pre-wrap">{analysis}</p>
+          </div>
+        )}
 
         {notes.length > 0 && (
           <div className="space-y-2">
