@@ -1,9 +1,19 @@
-
 import { Project } from "@/types/project";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Eye, ArrowLeft, ArrowRight, Trash2, Star, Trophy } from "lucide-react";
+import { 
+  Eye, 
+  ArrowLeft, 
+  ArrowRight, 
+  Trash2, 
+  Star, 
+  Trophy, 
+  Rocket,
+  Leaf,
+  FlaskConical,
+  PartyPopper
+} from "lucide-react";
 
 interface ProjectListProps {
   projects: Project[];
@@ -52,7 +62,10 @@ export const ProjectList = ({
         className="p-6 rounded-xl bg-gradient-to-r from-secondary/10 to-primary/10 border-2 border-primary/20"
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-heading font-bold text-primary">Your Science Journey 🚀</h2>
+          <div className="flex items-center gap-2">
+            <Rocket className="h-6 w-6 text-primary" />
+            <h2 className="text-2xl font-heading font-bold text-primary">Your Science Journey</h2>
+          </div>
           <div className="flex items-center space-x-2">
             <Trophy className="h-6 w-6 text-yellow-500" />
             <span className="font-bold text-lg">{totalPoints} Points</span>
@@ -104,9 +117,18 @@ export const ProjectList = ({
                 <div className="space-y-2">
                   <Progress value={getStatusProgress(project.status)} className="h-2" />
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>🌱 Draft</span>
-                    <span>🔬 In Progress</span>
-                    <span>🎉 Completed</span>
+                    <span className="flex items-center gap-1">
+                      <Leaf className="h-4 w-4" />
+                      Draft
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <FlaskConical className="h-4 w-4" />
+                      In Progress
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <PartyPopper className="h-4 w-4" />
+                      Completed
+                    </span>
                   </div>
                 </div>
               </div>
@@ -151,13 +173,14 @@ export const ProjectList = ({
           </motion.div>
         ))}
         {projects.length === 0 && (
-          <motion.p 
+          <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center text-muted-foreground py-8 bg-card rounded-lg"
+            className="text-center text-muted-foreground py-8 bg-card rounded-lg flex items-center justify-center gap-2"
           >
-            Ready to start your scientific adventure? Generate your first project idea above! 🚀
-          </motion.p>
+            <Rocket className="h-5 w-5" />
+            Ready to start your scientific adventure? Generate your first project idea above!
+          </motion.div>
         )}
       </div>
     </div>

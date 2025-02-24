@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Sparkles, Brain, Atom } from "lucide-react";
+import { Loader2, Sparkles, Brain, Atom, GraduationCap, Rocket } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -110,25 +110,27 @@ export const ProjectGenerator = ({ onProjectGenerated }: ProjectGeneratorProps) 
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <label htmlFor="age-group" className="text-lg font-medium text-primary">
-            What grade are you in? 🎓
+          <label htmlFor="age-group" className="text-lg font-medium text-primary flex items-center gap-2">
+            <GraduationCap className="h-5 w-5" />
+            What grade are you in?
           </label>
           <Select value={ageGroup} onValueChange={setAgeGroup}>
             <SelectTrigger id="age-group" className="bg-white/70 backdrop-blur-sm border-2">
               <SelectValue placeholder="Pick your grade level!" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="elementary">Elementary School (5-10) 🌟</SelectItem>
-              <SelectItem value="middle">Middle School (11-13) 🚀</SelectItem>
-              <SelectItem value="high">High School (14-18) 🔬</SelectItem>
-              <SelectItem value="college">College (18+) 🎓</SelectItem>
+              <SelectItem value="elementary">Elementary School (5-10)</SelectItem>
+              <SelectItem value="middle">Middle School (11-13)</SelectItem>
+              <SelectItem value="high">High School (14-18)</SelectItem>
+              <SelectItem value="college">College (18+)</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="interests" className="text-lg font-medium text-primary">
-            What amazing things interest you? ✨
+          <label htmlFor="interests" className="text-lg font-medium text-primary flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            What amazing things interest you?
           </label>
           <Textarea
             id="interests"
@@ -154,8 +156,9 @@ export const ProjectGenerator = ({ onProjectGenerated }: ProjectGeneratorProps) 
         {loading ? "Creating Your Adventure..." : "Generate Awesome Project!"}
       </Button>
 
-      <p className="text-sm text-center text-muted-foreground mt-4">
-        Get ready for an amazing scientific journey! 🚀
+      <p className="text-sm text-center text-muted-foreground mt-4 flex items-center justify-center gap-2">
+        <Rocket className="h-4 w-4" />
+        Get ready for an amazing scientific journey!
       </p>
     </motion.div>
   );
