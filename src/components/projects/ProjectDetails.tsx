@@ -150,6 +150,8 @@ export const ProjectDetails = ({
             hypothesis={currentProject.hypothesis}
             materials={currentProject.materials}
           />
+          <ProjectHypothesis hypothesis={currentProject.hypothesis} />
+          <ProjectMaterials materials={currentProject.materials} />
           <ProjectExperimentPlanner
             projectId={currentProject.id}
             title={currentProject.title}
@@ -162,8 +164,6 @@ export const ProjectDetails = ({
             title={currentProject.title}
             description={currentProject.description}
           />
-          <ProjectHypothesis hypothesis={currentProject.hypothesis} />
-          <ProjectMaterials materials={currentProject.materials} />
           <ProjectFiles
             projectId={currentProject.id}
             files={files}
