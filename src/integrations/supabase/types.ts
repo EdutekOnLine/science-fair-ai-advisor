@@ -33,14 +33,84 @@ export type Database = {
         }
         Relationships: []
       }
+      project_data_points: {
+        Row: {
+          id: string
+          metric_name: string
+          project_id: string | null
+          recorded_at: string
+          value: number
+        }
+        Insert: {
+          id?: string
+          metric_name: string
+          project_id?: string | null
+          recorded_at?: string
+          value: number
+        }
+        Update: {
+          id?: string
+          metric_name?: string
+          project_id?: string | null
+          recorded_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_data_points_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_type: string
+          file_url: string
+          id: string
+          project_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_type: string
+          file_url: string
+          id?: string
+          project_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_type?: string
+          file_url?: string
+          id?: string
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           category: string
           created_at: string
           description: string | null
+          experiment_results: Json | null
           hypothesis: string | null
           id: string
           materials: string[] | null
+          observation_notes: string[] | null
+          presentation_template: string | null
           status: string | null
           title: string
           updated_at: string
@@ -50,9 +120,12 @@ export type Database = {
           category: string
           created_at?: string
           description?: string | null
+          experiment_results?: Json | null
           hypothesis?: string | null
           id?: string
           materials?: string[] | null
+          observation_notes?: string[] | null
+          presentation_template?: string | null
           status?: string | null
           title: string
           updated_at?: string
@@ -62,9 +135,12 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string | null
+          experiment_results?: Json | null
           hypothesis?: string | null
           id?: string
           materials?: string[] | null
+          observation_notes?: string[] | null
+          presentation_template?: string | null
           status?: string | null
           title?: string
           updated_at?: string
