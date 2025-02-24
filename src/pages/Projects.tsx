@@ -43,7 +43,13 @@ const Projects = () => {
       return;
     }
 
-    setProjects(data || []);
+    // Cast the status to the correct type and map the data
+    const typedProjects = (data || []).map(project => ({
+      ...project,
+      status: (project.status || 'draft') as 'draft' | 'in_progress' | 'completed'
+    }));
+
+    setProjects(typedProjects);
   };
 
   const generateProject = async () => {
@@ -78,6 +84,7 @@ const Projects = () => {
       const { error } = await supabase.from("projects").insert({
         ...projectIdea,
         user_id: user.user?.id,
+        status: 'draft' as const,
       });
 
       if (error) throw error;
