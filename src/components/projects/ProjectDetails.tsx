@@ -20,6 +20,7 @@ import { ProjectAnalysis } from "./details/ProjectAnalysis";
 import { ProjectResearch } from "./details/ProjectResearch";
 import { ProjectExperimentPlanner } from "./details/ProjectExperimentPlanner";
 import { ProjectDataAnalysis } from "./details/ProjectDataAnalysis";
+import { ProjectExperimentResults } from "./details/ProjectExperimentResults";
 
 interface ProjectDetailsProps {
   project: Project | null;
@@ -35,21 +36,26 @@ export const ProjectDetails = ({
   onPresentationMode,
 }: ProjectDetailsProps) => {
   const [files, setFiles] = useState<ProjectFile[]>([]);
+  const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (project?.id) {
+    setCurrentProject(project);
+  }, [project]);
+
+  useEffect(() => {
+    if (currentProject?.id) {
       fetchFiles();
     }
-  }, [project?.id]);
+  }, [currentProject?.id]);
 
   const fetchFiles = async () => {
-    if (!project?.id) return;
+    if (!currentProject?.id) return;
 
     const { data, error } = await supabase
       .from("project_files")
       .select("*")
-      .eq("project_id", project.id)
+      .eq("project_id", currentProject.id)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -64,11 +70,32 @@ export const ProjectDetails = ({
     setFiles(data);
   };
 
+  const refreshProject = async () => {
+    if (!currentProject?.id) return;
+
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("id", currentProject.id)
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error refreshing project",
+        description: error.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setCurrentProject(data);
+  };
+
   const exportProject = () => {
-    if (!project) return;
+    if (!currentProject) return;
 
     const projectData = {
-      ...project,
+      ...currentProject,
       files: files,
       exportDate: new Date().toISOString()
     };
@@ -79,7 +106,7 @@ export const ProjectDetails = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${project.title.toLowerCase().replace(/\s+/g, "-")}-export.json`;
+    a.download = `${currentProject.title.toLowerCase().replace(/\s+/g, "-")}-export.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -91,51 +118,56 @@ export const ProjectDetails = ({
     });
   };
 
-  if (!project) return null;
+  if (!currentProject) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle>{project.title}</DialogTitle>
-          <DialogDescription>{project.description}</DialogDescription>
+          <DialogTitle>{currentProject.title}</DialogTitle>
+          <DialogDescription>{currentProject.description}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 overflow-y-auto max-h-[calc(90vh-8rem)] pr-4 -mr-4">
           <ProjectDataAnalysis
-            projectId={project.id}
-            title={project.title}
-            experimentResults={project.experiment_results}
+            projectId={currentProject.id}
+            title={currentProject.title}
+            experimentResults={currentProject.experiment_results}
+          />
+          <ProjectExperimentResults
+            projectId={currentProject.id}
+            experimentResults={currentProject.experiment_results}
+            onResultsUpdated={refreshProject}
           />
           <ProjectAnalysis
-            projectId={project.id}
-            title={project.title}
-            description={project.description}
-            hypothesis={project.hypothesis}
-            materials={project.materials}
+            projectId={currentProject.id}
+            title={currentProject.title}
+            description={currentProject.description}
+            hypothesis={currentProject.hypothesis}
+            materials={currentProject.materials}
           />
           <ProjectExperimentPlanner
-            projectId={project.id}
-            title={project.title}
-            description={project.description}
-            hypothesis={project.hypothesis}
-            materials={project.materials}
+            projectId={currentProject.id}
+            title={currentProject.title}
+            description={currentProject.description}
+            hypothesis={currentProject.hypothesis}
+            materials={currentProject.materials}
           />
           <ProjectResearch
-            projectId={project.id}
-            title={project.title}
-            description={project.description}
+            projectId={currentProject.id}
+            title={currentProject.title}
+            description={currentProject.description}
           />
-          <ProjectHypothesis hypothesis={project.hypothesis} />
-          <ProjectMaterials materials={project.materials} />
+          <ProjectHypothesis hypothesis={currentProject.hypothesis} />
+          <ProjectMaterials materials={currentProject.materials} />
           <ProjectFiles
-            projectId={project.id}
+            projectId={currentProject.id}
             files={files}
             onFileUploaded={fetchFiles}
           />
           <ProjectNotes
-            projectId={project.id}
-            notes={project.observation_notes || []}
+            projectId={currentProject.id}
+            notes={currentProject.observation_notes || []}
           />
 
           <div className="flex justify-end gap-2 sticky bottom-0 bg-background py-4 border-t">
