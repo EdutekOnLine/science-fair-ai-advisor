@@ -143,16 +143,6 @@ export const ProjectDetails = ({
         </DialogHeader>
 
         <div className="space-y-6 overflow-y-auto max-h-[calc(90vh-8rem)] pr-4 -mr-4">
-          <ProjectDataAnalysis
-            projectId={currentProject.id}
-            title={currentProject.title}
-            experimentResults={currentProject.experiment_results}
-          />
-          <ProjectExperimentResults
-            projectId={currentProject.id}
-            experimentResults={currentProject.experiment_results}
-            onResultsUpdated={refreshProject}
-          />
           <ProjectAnalysis
             projectId={currentProject.id}
             title={currentProject.title}
@@ -182,6 +172,16 @@ export const ProjectDetails = ({
           <ProjectNotes
             projectId={currentProject.id}
             notes={currentProject.observation_notes || []}
+          />
+          <ProjectDataAnalysis
+            projectId={currentProject.id}
+            title={currentProject.title}
+            experimentResults={currentProject.experiment_results}
+          />
+          <ProjectExperimentResults
+            projectId={currentProject.id}
+            experimentResults={currentProject.experiment_results}
+            onResultsUpdated={refreshProject}
           />
 
           <div className="flex justify-end gap-2 sticky bottom-0 bg-background py-4 border-t">
