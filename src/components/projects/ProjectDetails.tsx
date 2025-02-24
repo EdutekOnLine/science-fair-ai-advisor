@@ -19,6 +19,7 @@ import { ProjectNotes } from "./details/ProjectNotes";
 import { ProjectAnalysis } from "./details/ProjectAnalysis";
 import { ProjectResearch } from "./details/ProjectResearch";
 import { ProjectExperimentPlanner } from "./details/ProjectExperimentPlanner";
+import { ProjectDataAnalysis } from "./details/ProjectDataAnalysis";
 
 interface ProjectDetailsProps {
   project: Project | null;
@@ -101,6 +102,11 @@ export const ProjectDetails = ({
         </DialogHeader>
 
         <div className="space-y-6 overflow-y-auto max-h-[calc(90vh-8rem)] pr-4 -mr-4">
+          <ProjectDataAnalysis
+            projectId={project.id}
+            title={project.title}
+            experimentResults={project.experiment_results}
+          />
           <ProjectAnalysis
             projectId={project.id}
             title={project.title}
