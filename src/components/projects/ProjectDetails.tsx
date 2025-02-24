@@ -15,8 +15,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Presentation, FileText } from "lucide-react";
+import { Presentation, FileText, Download } from "lucide-react";
 import { ProjectFileUpload } from "./ProjectFileUpload";
+import { ExperimentResults } from "./ExperimentResults";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -93,6 +94,33 @@ export const ProjectDetails = ({
     setNewNote("");
   };
 
+  const exportProject = () => {
+    if (!project) return;
+
+    const projectData = {
+      ...project,
+      files: files,
+      exportDate: new Date().toISOString(),
+    };
+
+    const blob = new Blob([JSON.stringify(projectData, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${project.title.toLowerCase().replace(/\s+/g, "-")}-export.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Project exported",
+      description: "Your project data has been exported successfully.",
+    });
+  };
+
   if (!project) return null;
 
   return (
@@ -125,6 +153,11 @@ export const ProjectDetails = ({
               </ul>
             </CardContent>
           </Card>
+
+          <ExperimentResults 
+            project={project}
+            onUpdate={fetchFiles}
+          />
 
           <Card>
             <CardHeader>
@@ -194,6 +227,13 @@ export const ProjectDetails = ({
           </Card>
 
           <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={exportProject}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export Project
+            </Button>
             <Button
               variant="outline"
               onClick={onPresentationMode}

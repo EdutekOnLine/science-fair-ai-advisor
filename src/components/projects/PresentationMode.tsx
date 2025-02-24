@@ -7,6 +7,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 
 interface PresentationModeProps {
   project: Project | null;
@@ -22,6 +24,16 @@ export const PresentationMode = ({
   getStatusProgress,
 }: PresentationModeProps) => {
   if (!project) return null;
+
+  const getChartData = () => {
+    if (!project.experiment_results) return [];
+    
+    const metrics = Object.keys(project.experiment_results);
+    return metrics.map(metric => ({
+      name: metric,
+      value: project.experiment_results![metric]
+    }));
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -51,6 +63,46 @@ export const PresentationMode = ({
               ))}
             </ul>
           </section>
+
+          {project.observation_notes?.length > 0 && (
+            <section className="space-y-4">
+              <h3 className="text-2xl font-semibold">Observations</h3>
+              <div className="space-y-2">
+                {project.observation_notes.map((note, index) => (
+                  <Card key={index}>
+                    <CardContent className="py-4">
+                      <p>{note}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {getChartData().length > 0 && (
+            <section className="space-y-4">
+              <h3 className="text-2xl font-semibold">Experiment Results</h3>
+              <Card>
+                <CardContent className="py-6">
+                  <div className="w-full h-[300px]">
+                    <LineChart
+                      width={600}
+                      height={300}
+                      data={getChartData()}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="value" stroke="#8884d8" />
+                    </LineChart>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          )}
 
           <section className="space-y-4">
             <h3 className="text-2xl font-semibold">Progress</h3>
