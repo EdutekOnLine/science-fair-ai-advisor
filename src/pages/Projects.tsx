@@ -111,10 +111,17 @@ const Projects = () => {
 
   return (
     <div className="min-h-screen p-4">
-      <nav className="mb-8">
-        <Button variant="ghost" onClick={() => window.history.back()}>
-          ← Back
-        </Button>
+      <nav className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <img 
+            src="/lovable-uploads/25afb913-1950-46e2-9249-b8577498a3cf.png"
+            alt="Project Logo"
+            className="h-12 w-auto"
+          />
+          <Button variant="ghost" onClick={() => window.history.back()}>
+            ← Back
+          </Button>
+        </div>
       </nav>
 
       <motion.div
