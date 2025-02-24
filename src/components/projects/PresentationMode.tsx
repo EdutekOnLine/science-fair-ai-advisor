@@ -1,3 +1,4 @@
+
 import { Project } from "@/types/project";
 import {
   Dialog,
@@ -6,7 +7,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Download } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import html2pdf from "html2pdf.js";
 import { useToast } from "@/hooks/use-toast";
@@ -199,7 +200,7 @@ export const PresentationMode = ({
             </span>
           </div>
 
-          <div className="flex-1 overflow-hidden px-4 py-8" ref={contentRef}>
+          <div className="flex-1 overflow-x-hidden px-4 py-8" ref={contentRef}>
             <AnimatePresence mode="wait">
               <motion.div
                 key={slides[currentSlideIndex].id}
@@ -209,7 +210,9 @@ export const PresentationMode = ({
                 transition={{ duration: 0.3 }}
                 className="h-full flex items-center justify-center"
               >
-                {slides[currentSlideIndex].content}
+                <div className="max-h-[calc(90vh-12rem)] overflow-y-auto pr-4 -mr-4">
+                  {slides[currentSlideIndex].content}
+                </div>
               </motion.div>
             </AnimatePresence>
           </div>
