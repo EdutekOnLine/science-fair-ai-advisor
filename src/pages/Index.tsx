@@ -1,7 +1,9 @@
 
 import { motion } from "framer-motion";
-import { Microscope, RocketIcon, Brain, GraduationCap } from "lucide-react";
+import { Microscope, Brain, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const features = [
   {
@@ -22,8 +24,27 @@ const features = [
 ];
 
 const Index = () => {
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen">
+      <nav className="p-4 flex justify-end">
+        <Button variant="outline" onClick={handleSignOut}>
+          Sign Out
+        </Button>
+      </nav>
+
       {/* Hero Section */}
       <section className="hero-gradient py-20 px-4">
         <div className="container mx-auto">
