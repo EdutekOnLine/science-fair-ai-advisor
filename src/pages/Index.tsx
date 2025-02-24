@@ -4,6 +4,7 @@ import { Microscope, Brain, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const features = [
   {
@@ -25,6 +26,7 @@ const features = [
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -39,10 +41,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      <nav className="p-4 flex justify-end">
-        <Button variant="outline" onClick={handleSignOut}>
-          Sign Out
-        </Button>
+      <nav className="p-4 flex justify-between items-center">
+        <h1 className="text-xl font-bold">Science Fair AI</h1>
+        <div className="space-x-4">
+          <Button variant="outline" onClick={() => navigate("/projects")}>
+            My Projects
+          </Button>
+          <Button variant="outline" onClick={handleSignOut}>
+            Sign Out
+          </Button>
+        </div>
       </nav>
 
       {/* Hero Section */}
@@ -63,6 +71,7 @@ const Index = () => {
             <Button
               size="lg"
               className="animated-button text-white px-8 py-6 text-lg rounded-full"
+              onClick={() => navigate("/projects")}
             >
               <span className="relative z-10">Get Started</span>
             </Button>
@@ -112,6 +121,7 @@ const Index = () => {
               size="lg"
               variant="secondary"
               className="animated-button px-8 py-6 text-lg rounded-full"
+              onClick={() => navigate("/projects")}
             >
               <span className="relative z-10 text-white">Launch Your Project</span>
             </Button>

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Projects from "./pages/Projects";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,10 @@ const App = () => {
             <Route
               path="/"
               element={session ? <Index /> : <Navigate to="/auth" />}
+            />
+            <Route
+              path="/projects"
+              element={session ? <Projects /> : <Navigate to="/auth" />}
             />
             <Route
               path="/auth"
