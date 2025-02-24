@@ -16,6 +16,7 @@ import { ProjectMaterials } from "./details/ProjectMaterials";
 import { ProjectFiles } from "./details/ProjectFiles";
 import { ProjectNotes } from "./details/ProjectNotes";
 import { ProjectAnalysis } from "./details/ProjectAnalysis";
+import { ProjectResearch } from "./details/ProjectResearch";
 
 interface ProjectDetailsProps {
   project: Project | null;
@@ -104,6 +105,11 @@ export const ProjectDetails = ({
             description={project.description}
             hypothesis={project.hypothesis}
             materials={project.materials}
+          />
+          <ProjectResearch
+            projectId={project.id}
+            title={project.title}
+            description={project.description}
           />
           <ProjectHypothesis hypothesis={project.hypothesis} />
           <ProjectMaterials materials={project.materials} />
