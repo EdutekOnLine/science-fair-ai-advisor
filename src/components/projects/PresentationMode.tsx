@@ -1,4 +1,3 @@
-
 import { Project } from "@/types/project";
 import {
   Dialog,
@@ -7,7 +6,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Download } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import html2pdf from "html2pdf.js";
 import { useToast } from "@/hooks/use-toast";
@@ -34,7 +33,15 @@ export const PresentationMode = ({
 }: PresentationModeProps) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (isOpen) {
+      // Reset slide refs array when slides change
+      slideRefs.current = slideRefs.current.slice(0, slides.length);
+    }
+  }, [isOpen]);
 
   if (!project) return null;
 
@@ -109,15 +116,27 @@ export const PresentationMode = ({
   ];
 
   const nextSlide = () => {
-    setCurrentSlideIndex((prev) => 
-      prev < slides.length - 1 ? prev + 1 : prev
-    );
+    if (currentSlideIndex < slides.length - 1) {
+      setCurrentSlideIndex(prev => prev + 1);
+      scrollToSlide(currentSlideIndex + 1);
+    }
   };
 
   const previousSlide = () => {
-    setCurrentSlideIndex((prev) => 
-      prev > 0 ? prev - 1 : prev
-    );
+    if (currentSlideIndex > 0) {
+      setCurrentSlideIndex(prev => prev - 1);
+      scrollToSlide(currentSlideIndex - 1);
+    }
+  };
+
+  const scrollToSlide = (index: number) => {
+    const slideElement = slideRefs.current[index];
+    if (slideElement && contentRef.current) {
+      contentRef.current.scrollTo({
+        top: slideElement.offsetTop,
+        behavior: 'smooth'
+      });
+    }
   };
 
   const exportToPDF = async () => {
@@ -202,16 +221,19 @@ export const PresentationMode = ({
 
           <div className="flex-1 overflow-y-auto px-4 py-8" ref={contentRef}>
             <AnimatePresence mode="wait">
-              <motion.div
-                key={slides[currentSlideIndex].id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="h-full flex items-center justify-center"
-              >
-                {slides[currentSlideIndex].content}
-              </motion.div>
+              {slides.map((slide, index) => (
+                <motion.div
+                  key={slide.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: index === currentSlideIndex ? 1 : 0.3, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="min-h-[60vh] flex items-center justify-center mb-8"
+                  ref={el => slideRefs.current[index] = el}
+                >
+                  {slide.content}
+                </motion.div>
+              ))}
             </AnimatePresence>
           </div>
 
