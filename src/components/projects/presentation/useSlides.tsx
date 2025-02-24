@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Project } from "@/types/project";
 import { Progress } from "@/components/ui/progress";
 import { Slide } from "./types";
