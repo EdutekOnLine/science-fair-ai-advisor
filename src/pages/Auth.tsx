@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -55,9 +54,14 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-success/10 px-4">
-      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl shadow-xl">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-success/10 px-4">
+      <div className="w-full max-w-md space-y-8">
         <div className="text-center">
+          <img 
+            src="/lovable-uploads/25afb913-1950-46e2-9249-b8577498a3cf.png"
+            alt="Project Logo"
+            className="h-12 w-auto mx-auto mb-6"
+          />
           <h2 className="text-3xl font-bold">
             {isSignUp ? "Create an account" : "Welcome back"}
           </h2>
@@ -68,7 +72,7 @@ const Auth = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6 bg-white p-8 rounded-2xl shadow-xl">
           {isSignUp && (
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium mb-2">

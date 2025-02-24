@@ -42,7 +42,14 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <nav className="p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">Science Fair AI</h1>
+        <div className="flex items-center gap-4">
+          <img 
+            src="/lovable-uploads/25afb913-1950-46e2-9249-b8577498a3cf.png"
+            alt="Project Logo"
+            className="h-12 w-auto"
+          />
+          <h1 className="text-xl font-bold">Science Fair AI</h1>
+        </div>
         <div className="space-x-4">
           <Button variant="outline" onClick={() => navigate("/projects")}>
             My Projects
