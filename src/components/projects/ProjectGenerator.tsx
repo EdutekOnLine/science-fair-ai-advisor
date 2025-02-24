@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, Brain, Atom } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { motion } from "framer-motion";
 
 interface ProjectGeneratorProps {
   onProjectGenerated: () => void;
@@ -96,35 +97,45 @@ export const ProjectGenerator = ({ onProjectGenerated }: ProjectGeneratorProps) 
   };
 
   return (
-    <div className="space-y-4 p-6 border rounded-lg bg-card">
-      <div className="space-y-4">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-4 p-6 border-2 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border-primary/20 shadow-lg"
+    >
+      <div className="flex items-center justify-center space-x-2 mb-6">
+        <Brain className="w-8 h-8 text-primary animate-bounce" />
+        <h2 className="text-2xl font-heading font-bold text-primary">Science Project Generator</h2>
+        <Atom className="w-8 h-8 text-secondary animate-pulse" />
+      </div>
+
+      <div className="space-y-6">
         <div className="space-y-2">
-          <label htmlFor="age-group" className="text-sm font-medium">
-            Select your age group
+          <label htmlFor="age-group" className="text-lg font-medium text-primary">
+            What grade are you in? 🎓
           </label>
           <Select value={ageGroup} onValueChange={setAgeGroup}>
-            <SelectTrigger id="age-group">
-              <SelectValue placeholder="Select your age group" />
+            <SelectTrigger id="age-group" className="bg-white/70 backdrop-blur-sm border-2">
+              <SelectValue placeholder="Pick your grade level!" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="elementary">Elementary School (5-10)</SelectItem>
-              <SelectItem value="middle">Middle School (11-13)</SelectItem>
-              <SelectItem value="high">High School (14-18)</SelectItem>
-              <SelectItem value="college">College (18+)</SelectItem>
+              <SelectItem value="elementary">Elementary School (5-10) 🌟</SelectItem>
+              <SelectItem value="middle">Middle School (11-13) 🚀</SelectItem>
+              <SelectItem value="high">High School (14-18) 🔬</SelectItem>
+              <SelectItem value="college">College (18+) 🎓</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="interests" className="text-sm font-medium">
-            What are you interested in?
+          <label htmlFor="interests" className="text-lg font-medium text-primary">
+            What amazing things interest you? ✨
           </label>
           <Textarea
             id="interests"
-            placeholder="E.g., Biology, renewable energy, robotics, environmental science..."
+            placeholder="Plants? Space? Robots? Tell us what excites you!"
             value={interests}
             onChange={(e) => setInterests(e.target.value)}
-            className="min-h-[100px]"
+            className="min-h-[100px] bg-white/70 backdrop-blur-sm border-2 placeholder:text-muted-foreground/60"
           />
         </div>
       </div>
@@ -132,16 +143,20 @@ export const ProjectGenerator = ({ onProjectGenerated }: ProjectGeneratorProps) 
       <Button
         onClick={generateProject}
         disabled={loading}
-        className="w-full"
+        className="w-full text-lg font-medium bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all duration-300 transform hover:scale-105"
         size="lg"
       >
         {loading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
         ) : (
-          <Sparkles className="mr-2 h-4 w-4" />
+          <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
         )}
-        Generate Project Idea
+        {loading ? "Creating Your Adventure..." : "Generate Awesome Project!"}
       </Button>
-    </div>
+
+      <p className="text-sm text-center text-muted-foreground mt-4">
+        Get ready for an amazing scientific journey! 🚀
+      </p>
+    </motion.div>
   );
 };
