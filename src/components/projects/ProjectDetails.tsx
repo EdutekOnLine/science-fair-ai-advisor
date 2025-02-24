@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -7,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Presentation } from "lucide-react";
+import { Download, Presentation, AlertTriangle, Info, Lightbulb } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Project, ProjectFile } from "@/types/project";
@@ -169,6 +170,56 @@ export const ProjectDetails = ({
 
   if (!currentProject) return null;
 
+  const getSafetyTips = (category: string) => {
+    const tips: Record<string, string[]> = {
+      "Chemistry": [
+        "Always wear safety goggles 🥽",
+        "Use gloves when handling chemicals 🧤",
+        "Work in a well-ventilated area 💨",
+        "Ask an adult for supervision 👨‍👩‍👧‍👦"
+      ],
+      "Biology": [
+        "Wash hands before and after 🧼",
+        "Keep your workspace clean 🧹",
+        "Use proper disposal methods ♻️",
+        "Be gentle with living things 🌱"
+      ],
+      "Physics": [
+        "Protect your eyes during light experiments 👀",
+        "Be careful with moving parts ⚙️",
+        "Keep water away from electronics ⚡",
+        "Use tools properly 🔧"
+      ]
+    };
+    return tips[category] || [
+      "Always work with adult supervision 👨‍👩‍👧‍👦",
+      "Keep your workspace tidy 🧹",
+      "Follow all safety instructions carefully ✅",
+      "Ask questions if you're unsure 🤔"
+    ];
+  };
+
+  const getFunFacts = (category: string) => {
+    const facts: Record<string, string[]> = {
+      "Chemistry": [
+        "Did you know? Diamonds and pencil lead are made of the same element - Carbon! 💎",
+        "The only letter not in the periodic table is the letter 'J'! 📝"
+      ],
+      "Biology": [
+        "Your body has enough DNA to stretch from the Earth to the Sun and back 600 times! 🧬",
+        "A honeybee has to visit about 1,500 flowers to make one teaspoon of honey! 🐝"
+      ],
+      "Physics": [
+        "Lightning strikes the Earth about 100 times every second! ⚡",
+        "Sound travels about 4.3 times faster in water than in air! 🌊"
+      ]
+    };
+    return facts[category] || [
+      "Scientists estimate there are over 100 billion galaxies in the universe! 🌌",
+      "The average human brain has about 100 billion neurons! 🧠"
+    ];
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
@@ -178,6 +229,62 @@ export const ProjectDetails = ({
         </DialogHeader>
 
         <div className="space-y-6 overflow-y-auto max-h-[calc(90vh-8rem)] pr-4 -mr-4">
+          {/* Safety Tips Section */}
+          <div className="p-4 rounded-lg bg-orange-50 border border-orange-200">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              <h3 className="font-semibold text-orange-700">Safety First! 🛡️</h3>
+            </div>
+            <ul className="space-y-2">
+              {getSafetyTips(currentProject.category).map((tip, index) => (
+                <li key={index} className="text-orange-600 flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Fun Facts Section */}
+          <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
+            <div className="flex items-center gap-2 mb-3">
+              <Lightbulb className="h-5 w-5 text-blue-500" />
+              <h3 className="font-semibold text-blue-700">Did You Know? 🤔</h3>
+            </div>
+            <ul className="space-y-2">
+              {getFunFacts(currentProject.category).map((fact, index) => (
+                <li key={index} className="text-blue-600 flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                  {fact}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Visual Project Guide */}
+          <div className="p-4 rounded-lg bg-purple-50 border border-purple-200">
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="h-5 w-5 text-purple-500" />
+              <h3 className="font-semibold text-purple-700">Project Guide 📚</h3>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex-1 p-3 rounded bg-white border border-purple-200">
+                  <p className="font-medium text-purple-700">Step 1: Plan 📝</p>
+                  <p className="text-purple-600">Write your hypothesis and gather materials</p>
+                </div>
+                <div className="flex-1 p-3 rounded bg-white border border-purple-200">
+                  <p className="font-medium text-purple-700">Step 2: Experiment 🔬</p>
+                  <p className="text-purple-600">Follow your procedure and take notes</p>
+                </div>
+                <div className="flex-1 p-3 rounded bg-white border border-purple-200">
+                  <p className="font-medium text-purple-700">Step 3: Learn 📊</p>
+                  <p className="text-purple-600">Analyze results and draw conclusions</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <ProjectAnalysis
             projectId={currentProject.id}
             title={currentProject.title}
@@ -187,18 +294,6 @@ export const ProjectDetails = ({
           />
           <ProjectHypothesis hypothesis={currentProject.hypothesis} />
           <ProjectMaterials materials={currentProject.materials} />
-          <ProjectExperimentPlanner
-            projectId={currentProject.id}
-            title={currentProject.title}
-            description={currentProject.description}
-            hypothesis={currentProject.hypothesis}
-            materials={currentProject.materials}
-          />
-          <ProjectResearch
-            projectId={currentProject.id}
-            title={currentProject.title}
-            description={currentProject.description}
-          />
           <ProjectFiles
             projectId={currentProject.id}
             files={files}
