@@ -64,19 +64,25 @@ const Projects = () => {
 
     setLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const response = await fetch(
         "https://mbfuggowxmibivlyrhmc.functions.supabase.co/generate-project",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${process.env.VITE_SUPABASE_ANON_KEY}`,
+            "apikey": process.env.VITE_SUPABASE_ANON_KEY as string,
+            "Authorization": `Bearer ${session?.access_token}`,
           },
           body: JSON.stringify({ interests }),
         }
       );
 
-      if (!response.ok) throw new Error("Failed to generate project");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate project");
+      }
       
       const projectIdea = await response.json();
       const { data: user } = await supabase.auth.getUser();
@@ -97,6 +103,7 @@ const Projects = () => {
       fetchProjects();
       setInterests("");
     } catch (error: any) {
+      console.error("Error generating project:", error);
       toast({
         title: "Error",
         description: error.message,
