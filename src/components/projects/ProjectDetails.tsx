@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -16,6 +15,7 @@ import { ProjectHypothesis } from "./details/ProjectHypothesis";
 import { ProjectMaterials } from "./details/ProjectMaterials";
 import { ProjectFiles } from "./details/ProjectFiles";
 import { ProjectNotes } from "./details/ProjectNotes";
+import { ProjectAnalysis } from "./details/ProjectAnalysis";
 
 interface ProjectDetailsProps {
   project: Project | null;
@@ -98,6 +98,13 @@ export const ProjectDetails = ({
         </DialogHeader>
 
         <div className="space-y-6 overflow-y-auto max-h-[calc(90vh-8rem)] pr-4 -mr-4">
+          <ProjectAnalysis
+            projectId={project.id}
+            title={project.title}
+            description={project.description}
+            hypothesis={project.hypothesis}
+            materials={project.materials}
+          />
           <ProjectHypothesis hypothesis={project.hypothesis} />
           <ProjectMaterials materials={project.materials} />
           <ProjectFiles
