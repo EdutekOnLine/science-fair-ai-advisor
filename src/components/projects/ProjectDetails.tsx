@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Project, ProjectFile } from "@/types/project";
 import {
@@ -16,7 +15,7 @@ import { ProjectHypothesis } from "./details/ProjectHypothesis";
 import { ProjectMaterials } from "./details/ProjectMaterials";
 import { ProjectFiles } from "./details/ProjectFiles";
 import { ProjectNotes } from "./details/ProjectNotes";
-import { ExperimentResults } from "@/components/projects/ExperimentResults";
+import { ExperimentResults } from "./ExperimentResults";
 
 interface ProjectDetailsProps {
   project: Project | null;
