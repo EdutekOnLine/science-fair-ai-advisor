@@ -6,9 +6,11 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import html2pdf from "html2pdf.js";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PresentationModeProps {
   project: Project | null;
@@ -30,6 +32,8 @@ export const PresentationMode = ({
   getStatusProgress,
 }: PresentationModeProps) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   if (!project) return null;
 
@@ -115,17 +119,87 @@ export const PresentationMode = ({
     );
   };
 
+  const exportToPDF = async () => {
+    if (!contentRef.current) return;
+
+    // Save current slide index
+    const currentIndex = currentSlideIndex;
+
+    try {
+      toast({
+        title: "Preparing PDF",
+        description: "Please wait while we generate your presentation..."
+      });
+
+      // Create a temporary container for all slides
+      const tempContainer = document.createElement('div');
+      tempContainer.style.width = '100%';
+      tempContainer.style.padding = '20px';
+
+      // Add all slides to the container
+      for (const slide of slides) {
+        const slideDiv = document.createElement('div');
+        slideDiv.style.pageBreakAfter = 'always';
+        slideDiv.style.padding = '20px';
+        slideDiv.style.minHeight = '90vh';
+        slideDiv.style.display = 'flex';
+        slideDiv.style.alignItems = 'center';
+        slideDiv.style.justifyContent = 'center';
+
+        // Create a temporary element to render the React content
+        const temp = document.createElement('div');
+        // @ts-ignore - We know this is safe as we're controlling the content
+        temp.innerHTML = ReactDOMServer.renderToStaticMarkup(slide.content);
+        slideDiv.appendChild(temp);
+        
+        tempContainer.appendChild(slideDiv);
+      }
+
+      // Configure PDF options
+      const opt = {
+        margin: 10,
+        filename: `${project.title.toLowerCase().replace(/\s+/g, '-')}-presentation.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      };
+
+      // Generate PDF
+      await html2pdf().set(opt).from(tempContainer).save();
+
+      toast({
+        title: "PDF exported successfully",
+        description: "Your presentation has been downloaded."
+      });
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "There was an error generating the PDF. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden sm:max-h-[80vh]">
         <div className="relative h-full flex flex-col">
-          <div className="absolute top-4 right-4 flex gap-2">
+          <div className="absolute top-4 right-4 flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportToPDF}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export PDF
+            </Button>
             <span className="text-sm text-muted-foreground">
               {currentSlideIndex + 1} / {slides.length}
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-8">
+          <div className="flex-1 overflow-y-auto px-4 py-8" ref={contentRef}>
             <AnimatePresence mode="wait">
               <motion.div
                 key={slides[currentSlideIndex].id}
