@@ -10,7 +10,8 @@ import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import html2pdf from "html2pdf.js";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import ReactDOMServer from "react-dom/server";
 
 interface PresentationModeProps {
   project: Project | null;
