@@ -33,15 +33,7 @@ export const PresentationMode = ({
 }: PresentationModeProps) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
-  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (isOpen) {
-      // Reset slide refs array when slides change
-      slideRefs.current = slideRefs.current.slice(0, slides.length);
-    }
-  }, [isOpen]);
 
   if (!project) return null;
 
@@ -116,27 +108,15 @@ export const PresentationMode = ({
   ];
 
   const nextSlide = () => {
-    if (currentSlideIndex < slides.length - 1) {
-      setCurrentSlideIndex(prev => prev + 1);
-      scrollToSlide(currentSlideIndex + 1);
-    }
+    setCurrentSlideIndex((prev) => 
+      prev < slides.length - 1 ? prev + 1 : prev
+    );
   };
 
   const previousSlide = () => {
-    if (currentSlideIndex > 0) {
-      setCurrentSlideIndex(prev => prev - 1);
-      scrollToSlide(currentSlideIndex - 1);
-    }
-  };
-
-  const scrollToSlide = (index: number) => {
-    const slideElement = slideRefs.current[index];
-    if (slideElement && contentRef.current) {
-      contentRef.current.scrollTo({
-        top: slideElement.offsetTop,
-        behavior: 'smooth'
-      });
-    }
+    setCurrentSlideIndex((prev) => 
+      prev > 0 ? prev - 1 : prev
+    );
   };
 
   const exportToPDF = async () => {
@@ -219,21 +199,18 @@ export const PresentationMode = ({
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-8" ref={contentRef}>
+          <div className="flex-1 overflow-hidden px-4 py-8" ref={contentRef}>
             <AnimatePresence mode="wait">
-              {slides.map((slide, index) => (
-                <motion.div
-                  key={slide.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: index === currentSlideIndex ? 1 : 0.3, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="min-h-[60vh] flex items-center justify-center mb-8"
-                  ref={el => slideRefs.current[index] = el}
-                >
-                  {slide.content}
-                </motion.div>
-              ))}
+              <motion.div
+                key={slides[currentSlideIndex].id}
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                transition={{ duration: 0.3 }}
+                className="h-full flex items-center justify-center"
+              >
+                {slides[currentSlideIndex].content}
+              </motion.div>
             </AnimatePresence>
           </div>
 
