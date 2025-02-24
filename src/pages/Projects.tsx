@@ -40,7 +40,13 @@ const Projects = () => {
 
     const typedProjects = (data || []).map(project => ({
       ...project,
-      status: (project.status || 'draft') as 'draft' | 'in_progress' | 'completed'
+      status: (project.status || 'draft') as Project['status'],
+      experiment_results: project.experiment_results as Record<string, number> | null,
+      materials: project.materials as string[] || [],
+      observation_notes: project.observation_notes as string[] | null,
+      description: project.description || "",
+      hypothesis: project.hypothesis || null,
+      presentation_template: project.presentation_template as string | null
     }));
 
     setProjects(typedProjects);
