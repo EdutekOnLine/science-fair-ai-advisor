@@ -88,7 +88,21 @@ export const ProjectDetails = ({
       return;
     }
 
-    setCurrentProject(data);
+    // Validate the status before setting it
+    const validatedData = {
+      ...data,
+      status: validateStatus(data.status)
+    } as Project;
+
+    setCurrentProject(validatedData);
+  };
+
+  // Helper function to validate status
+  const validateStatus = (status: string): Project['status'] => {
+    const validStatuses: Project['status'][] = ['draft', 'in_progress', 'completed'];
+    return validStatuses.includes(status as Project['status']) 
+      ? status as Project['status']
+      : 'draft'; // Default to 'draft' if invalid status
   };
 
   const exportProject = () => {
