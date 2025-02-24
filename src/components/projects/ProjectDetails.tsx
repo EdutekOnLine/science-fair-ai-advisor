@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -21,6 +20,7 @@ import { ProjectResearch } from "./details/ProjectResearch";
 import { ProjectExperimentPlanner } from "./details/ProjectExperimentPlanner";
 import { ProjectDataAnalysis } from "./details/ProjectDataAnalysis";
 import { ProjectExperimentResults } from "./details/ProjectExperimentResults";
+import html2pdf from 'html2pdf.js';
 
 interface ProjectDetailsProps {
   project: Project | null;
@@ -88,7 +88,6 @@ export const ProjectDetails = ({
       return;
     }
 
-    // Validate the status before setting it
     const validatedData = {
       ...data,
       status: validateStatus(data.status)
@@ -97,39 +96,75 @@ export const ProjectDetails = ({
     setCurrentProject(validatedData);
   };
 
-  // Helper function to validate status
   const validateStatus = (status: string): Project['status'] => {
     const validStatuses: Project['status'][] = ['draft', 'in_progress', 'completed'];
     return validStatuses.includes(status as Project['status']) 
       ? status as Project['status']
-      : 'draft'; // Default to 'draft' if invalid status
+      : 'draft';
   };
 
-  const exportProject = () => {
+  const exportProject = async () => {
     if (!currentProject) return;
 
-    const projectData = {
-      ...currentProject,
-      files: files,
-      exportDate: new Date().toISOString()
-    };
+    try {
+      toast({
+        title: "Preparing PDF",
+        description: "Please wait while we generate your project PDF..."
+      });
 
-    const blob = new Blob([JSON.stringify(projectData, null, 2)], {
-      type: "application/json"
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${currentProject.title.toLowerCase().replace(/\s+/g, "-")}-export.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+      const content = document.createElement('div');
+      content.innerHTML = `
+        <div style="padding: 20px; font-family: Arial, sans-serif;">
+          <h1 style="font-size: 24px; margin-bottom: 10px;">${currentProject.title}</h1>
+          <p style="color: #666; margin-bottom: 20px;">${currentProject.description}</p>
+          
+          <h2 style="font-size: 20px; margin-top: 30px;">Hypothesis</h2>
+          <p style="margin-bottom: 20px;">${currentProject.hypothesis}</p>
+          
+          <h2 style="font-size: 20px; margin-top: 30px;">Materials Needed</h2>
+          <ul style="margin-bottom: 20px;">
+            ${currentProject.materials.map(material => `<li>${material}</li>`).join('')}
+          </ul>
+          
+          <h2 style="font-size: 20px; margin-top: 30px;">Observation Notes</h2>
+          <ul style="margin-bottom: 20px;">
+            ${(currentProject.observation_notes || []).map(note => `<li>${note}</li>`).join('')}
+          </ul>
+          
+          ${currentProject.experiment_results ? `
+            <h2 style="font-size: 20px; margin-top: 30px;">Experiment Results</h2>
+            <div style="margin-bottom: 20px;">
+              <pre>${JSON.stringify(currentProject.experiment_results, null, 2)}</pre>
+            </div>
+          ` : ''}
+          
+          <div style="margin-top: 40px; color: #666; font-size: 12px;">
+            Generated on ${new Date().toLocaleDateString()}
+          </div>
+        </div>
+      `;
 
-    toast({
-      title: "Project exported",
-      description: "Your project data has been exported successfully."
-    });
+      const opt = {
+        margin: 10,
+        filename: `${currentProject.title.toLowerCase().replace(/\s+/g, "-")}-project.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await html2pdf().set(opt).from(content).save();
+
+      toast({
+        title: "PDF exported successfully",
+        description: "Your project has been exported as a PDF file."
+      });
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "There was an error generating the PDF. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   if (!currentProject) return null;
@@ -187,7 +222,7 @@ export const ProjectDetails = ({
           <div className="flex justify-end gap-2 sticky bottom-0 bg-background py-4 border-t">
             <Button variant="outline" onClick={exportProject}>
               <Download className="h-4 w-4 mr-2" />
-              Export Project
+              Export PDF
             </Button>
             <Button variant="outline" onClick={onPresentationMode}>
               <Presentation className="h-4 w-4 mr-2" />
