@@ -91,13 +91,13 @@ export const ProjectDetails = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{project.title}</DialogTitle>
           <DialogDescription>{project.description}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto max-h-[calc(90vh-8rem)] pr-4 -mr-4">
           <ProjectHypothesis hypothesis={project.hypothesis} />
           <ProjectMaterials materials={project.materials} />
           <ProjectFiles
@@ -110,7 +110,7 @@ export const ProjectDetails = ({
             notes={project.observation_notes || []}
           />
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 sticky bottom-0 bg-background py-4 border-t">
             <Button variant="outline" onClick={exportProject}>
               <Download className="h-4 w-4 mr-2" />
               Export Project
