@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { interests } = await req.json();
+    const { interests, ageGroup } = await req.json();
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -25,7 +25,8 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a science fair project advisor. Generate creative and educational project ideas based on student interests. 
+            content: `You are a science fair project advisor. Generate creative and educational project ideas based on student interests and age group. 
+            Ensure the project complexity and safety considerations are appropriate for the specified age group.
             Return the response in JSON format with the following structure:
             {
               "title": "Project title",
@@ -37,7 +38,7 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: `Generate a science fair project idea related to: ${interests}`
+            content: `Generate a science fair project idea for a ${ageGroup} school student interested in: ${interests}`
           }
         ],
       }),
