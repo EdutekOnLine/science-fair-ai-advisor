@@ -25,32 +25,43 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a science fair project advisor. Generate creative and educational project ideas based on student interests and age group. 
-            Ensure the project complexity and safety considerations are appropriate for the specified age group.
-            Return the response in JSON format with the following structure:
+            content: `You are a science fair project advisor. Generate a project idea and respond ONLY with a JSON object containing these exact fields (no explanation or markdown):
             {
               "title": "Project title",
               "description": "Brief project description",
-              "category": "Project category (e.g., Biology, Physics, Chemistry, etc.)",
+              "category": "Project category (Biology, Physics, Chemistry, etc.)",
               "hypothesis": "Scientific hypothesis to test",
               "materials": ["Array of required materials"]
             }`
           },
           {
             role: 'user',
-            content: `Generate a science fair project idea for a ${ageGroup} school student interested in: ${interests}`
+            content: `Generate an age-appropriate science fair project for a ${ageGroup} school student interested in: ${interests}`
           }
         ],
+        temperature: 0.7
       }),
     });
 
     const data = await response.json();
-    const projectIdea = JSON.parse(data.choices[0].message.content);
-
-    return new Response(JSON.stringify(projectIdea), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.log("OpenAI response:", data.choices[0].message.content);
+    
+    try {
+      const projectIdea = JSON.parse(data.choices[0].message.content.trim());
+      return new Response(JSON.stringify(projectIdea), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (parseError) {
+      console.error("JSON Parse error:", parseError);
+      return new Response(JSON.stringify({ 
+        error: "Failed to parse project idea. Please try again." 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
   } catch (error) {
+    console.error("Function error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
