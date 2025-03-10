@@ -92,6 +92,9 @@ export const ProjectGuide = () => {
               </div>
             ))}
           </div>
+          <p className="text-sm text-purple-600">
+            See the detailed project tutorial below for step-by-step instructions for your specific project.
+          </p>
         </div>
       </div>
 
@@ -99,7 +102,7 @@ export const ProjectGuide = () => {
         <CardContent className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Book className="h-5 w-5 text-primary" />
-            Step-by-Step Project Guide
+            General Project Guide
           </h3>
 
           <div className="space-y-4">

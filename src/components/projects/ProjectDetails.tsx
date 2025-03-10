@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Project, ProjectFile } from "@/types/project";
 import { ProjectHypothesis } from "./details/ProjectHypothesis";
 import { ProjectMaterials } from "./details/ProjectMaterials";
+import { ProjectTutorial } from "./details/ProjectTutorial";
 import { ProjectFiles } from "./details/ProjectFiles";
 import { ProjectNotes } from "./details/ProjectNotes";
 import { ProjectAnalysis } from "./details/ProjectAnalysis";
@@ -193,6 +194,7 @@ export const ProjectDetails = ({
           />
           <ProjectHypothesis hypothesis={currentProject.hypothesis} />
           <ProjectMaterials materials={currentProject.materials} />
+          <ProjectTutorial project={currentProject} />
           <ProjectFiles
             projectId={currentProject.id}
             files={files}
