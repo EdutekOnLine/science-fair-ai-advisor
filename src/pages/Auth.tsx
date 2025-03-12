@@ -32,7 +32,7 @@ const Auth = () => {
     }
     
     // Handle password reset
-    if (query.get("reset") === "true") {
+    if (query.get("type") === "recovery" || query.get("reset") === "true") {
       setIsResetPassword(true);
       toast({
         title: "Reset Password",
