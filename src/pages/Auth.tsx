@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,10 +19,18 @@ const Auth = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Check if we have error parameters in the URL hash
+    const getAccessTokenFromHash = () => {
+      if (location.hash && location.hash.includes('access_token')) {
+        const hashParams = new URLSearchParams(location.hash.substring(1));
+        return hashParams.get('access_token');
+      }
+      return null;
+    };
+
     const handleHashParams = () => {
       if (location.hash) {
         const hashParams = new URLSearchParams(location.hash.substring(1));
+        
         if (hashParams.get('error') === 'access_denied' && 
             hashParams.get('error_code') === 'otp_expired') {
           setIsForgotPassword(true);
@@ -35,22 +42,25 @@ const Auth = () => {
           return true;
         }
         
-        if (hashParams.get('type') === 'recovery' && hashParams.get('access_token')) {
-          setIsResetPassword(true);
-          toast({
-            title: "Reset Password",
-            description: "You can now set a new password for your account.",
-          });
-          return true;
+        if ((hashParams.get('type') === 'recovery' || location.search.includes('reset=true')) && 
+            hashParams.get('access_token')) {
+          
+          const accessToken = hashParams.get('access_token');
+          if (accessToken) {
+            setIsResetPassword(true);
+            toast({
+              title: "Reset Password",
+              description: "You can now set a new password for your account.",
+            });
+            return true;
+          }
         }
       }
       return false;
     };
     
-    // Check URL parameters for reset or verification
     const query = new URLSearchParams(location.search);
     
-    // Handle email verification
     if (query.get("verified") === "true") {
       toast({
         title: "Email Verified",
@@ -58,9 +68,12 @@ const Auth = () => {
       });
     }
     
-    // Handle password reset - check both query params and hash params
     if (query.get("type") === "recovery" || query.get("reset") === "true" || handleHashParams()) {
-      // The handleHashParams function will set the appropriate state and show toasts
+      console.log("Password reset flow detected", { 
+        isResetPassword, 
+        hash: location.hash,
+        search: location.search
+      });
       return;
     }
   }, [location, toast]);
@@ -71,7 +84,6 @@ const Auth = () => {
 
     try {
       if (isResetPassword) {
-        // Handle password reset after clicking link from email
         const { error } = await supabase.auth.updateUser({
           password: newPassword,
         });
@@ -86,7 +98,6 @@ const Auth = () => {
         setIsResetPassword(false);
         
       } else if (isForgotPassword) {
-        // Handle forgot password request
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/auth?reset=true`,
         });
@@ -101,7 +112,6 @@ const Auth = () => {
         setIsForgotPassword(false);
         
       } else if (isSignUp) {
-        // Handle sign up
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -121,7 +131,6 @@ const Auth = () => {
         });
         
       } else {
-        // Handle sign in
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
