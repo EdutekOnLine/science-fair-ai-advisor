@@ -20,18 +20,29 @@ const Auth = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Check if we have a hash in the URL that contains an access token (password reset flow)
+    // Check if we have error parameters in the URL hash
     const handleHashParams = () => {
-      if (location.hash && location.hash.includes('access_token') && location.hash.includes('type=recovery')) {
-        // Extract the access token from the hash
-        setIsResetPassword(true);
-        toast({
-          title: "Reset Password",
-          description: "You can now set a new password for your account.",
-        });
+      if (location.hash) {
+        const hashParams = new URLSearchParams(location.hash.substring(1));
+        if (hashParams.get('error') === 'access_denied' && 
+            hashParams.get('error_code') === 'otp_expired') {
+          setIsForgotPassword(true);
+          toast({
+            title: "Link Expired",
+            description: "Your password reset link has expired. Please request a new one.",
+            variant: "destructive",
+          });
+          return true;
+        }
         
-        // The session will be automatically set by Supabase client
-        return true;
+        if (hashParams.get('type') === 'recovery' && hashParams.get('access_token')) {
+          setIsResetPassword(true);
+          toast({
+            title: "Reset Password",
+            description: "You can now set a new password for your account.",
+          });
+          return true;
+        }
       }
       return false;
     };
@@ -49,11 +60,8 @@ const Auth = () => {
     
     // Handle password reset - check both query params and hash params
     if (query.get("type") === "recovery" || query.get("reset") === "true" || handleHashParams()) {
-      setIsResetPassword(true);
-      toast({
-        title: "Reset Password",
-        description: "You can now set a new password for your account.",
-      });
+      // The handleHashParams function will set the appropriate state and show toasts
+      return;
     }
   }, [location, toast]);
 
