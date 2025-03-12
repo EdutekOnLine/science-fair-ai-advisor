@@ -20,6 +20,22 @@ const Auth = () => {
   const location = useLocation();
 
   useEffect(() => {
+    // Check if we have a hash in the URL that contains an access token (password reset flow)
+    const handleHashParams = () => {
+      if (location.hash && location.hash.includes('access_token') && location.hash.includes('type=recovery')) {
+        // Extract the access token from the hash
+        setIsResetPassword(true);
+        toast({
+          title: "Reset Password",
+          description: "You can now set a new password for your account.",
+        });
+        
+        // The session will be automatically set by Supabase client
+        return true;
+      }
+      return false;
+    };
+    
     // Check URL parameters for reset or verification
     const query = new URLSearchParams(location.search);
     
@@ -31,8 +47,8 @@ const Auth = () => {
       });
     }
     
-    // Handle password reset
-    if (query.get("type") === "recovery" || query.get("reset") === "true") {
+    // Handle password reset - check both query params and hash params
+    if (query.get("type") === "recovery" || query.get("reset") === "true" || handleHashParams()) {
       setIsResetPassword(true);
       toast({
         title: "Reset Password",
