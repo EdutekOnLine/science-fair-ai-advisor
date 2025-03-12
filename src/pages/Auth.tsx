@@ -20,45 +20,78 @@ const Auth = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const handleResetPasswordFlow = () => {
-      console.log("Checking reset password flow", {
+    const parseHashAndQuery = () => {
+      console.log("Parsing URL parameters", {
         hash: location.hash,
         search: location.search
       });
       
-      // Check if we have an access token in the hash
-      if (location.hash && location.hash.includes('access_token')) {
-        const hashParams = new URLSearchParams(location.hash.substring(1));
-        
-        // Check for error first
-        if (hashParams.get('error') === 'access_denied' && 
-            hashParams.get('error_code') === 'otp_expired') {
-          setIsForgotPassword(true);
-          toast({
-            title: "Link Expired",
-            description: "Your password reset link has expired. Please request a new one.",
-            variant: "destructive",
-          });
-          return true;
-        }
-        
-        // Check for recovery type in hash or reset=true in search
-        if ((hashParams.get('type') === 'recovery' || 
-             location.search.includes('reset=true')) && 
-            hashParams.get('access_token')) {
-          console.log("Valid password reset link detected");
-          setIsResetPassword(true);
-          toast({
-            title: "Reset Password",
-            description: "You can now set a new password for your account.",
-          });
-          return true;
-        }
+      // Create a combined object of hash and query parameters for easier access
+      const hashParams = {};
+      if (location.hash) {
+        const hashString = location.hash.substring(1); // Remove the # character
+        hashString.split('&').forEach(param => {
+          const [key, value] = param.split('=');
+          if (key && value) {
+            hashParams[key] = decodeURIComponent(value);
+          }
+        });
       }
       
-      // Check for recovery in search params
-      const query = new URLSearchParams(location.search);
-      if (query.get("type") === "recovery" || query.get("reset") === "true") {
+      const queryParams = {};
+      const searchParams = new URLSearchParams(location.search);
+      for (const [key, value] of searchParams.entries()) {
+        queryParams[key] = value;
+      }
+      
+      console.log("Parsed parameters:", { hashParams, queryParams });
+      
+      return { hashParams, queryParams };
+    };
+    
+    const handleAuthFlow = () => {
+      const { hashParams, queryParams } = parseHashAndQuery();
+      
+      // Check for email verification confirmation
+      if (queryParams.verified === "true") {
+        toast({
+          title: "Email Verified",
+          description: "Your email has been verified. You can now sign in.",
+        });
+      }
+      
+      // Check for error in hash parameters (e.g., expired token)
+      if (hashParams.error === 'access_denied' && hashParams.error_code === 'otp_expired') {
+        setIsForgotPassword(true);
+        toast({
+          title: "Link Expired",
+          description: "Your password reset link has expired. Please request a new one.",
+          variant: "destructive",
+        });
+        return true;
+      }
+      
+      // Check for access token in hash parameters (valid reset link)
+      if (hashParams.access_token && 
+          (hashParams.type === 'recovery' || queryParams.reset === 'true')) {
+        console.log("Valid access token found, enabling password reset form");
+        setIsResetPassword(true);
+        toast({
+          title: "Reset Password",
+          description: "You can now set a new password for your account.",
+        });
+        
+        // Set session with the provided access token to enable password update
+        supabase.auth.setSession({
+          access_token: hashParams.access_token,
+          refresh_token: hashParams.refresh_token || '',
+        });
+        
+        return true;
+      }
+      
+      // Check for recovery in query params without token (usually for the initial form display)
+      if (queryParams.reset === "true" || queryParams.type === "recovery") {
         console.log("Reset flag detected in URL parameters");
         setIsResetPassword(true);
         toast({
@@ -71,17 +104,8 @@ const Auth = () => {
       return false;
     };
     
-    // Check for email verification confirmation
-    const query = new URLSearchParams(location.search);
-    if (query.get("verified") === "true") {
-      toast({
-        title: "Email Verified",
-        description: "Your email has been verified. You can now sign in.",
-      });
-    }
-    
-    // Handle reset password flow
-    handleResetPasswordFlow();
+    // Process the auth flow when component mounts or URL changes
+    handleAuthFlow();
   }, [location, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,44 +116,20 @@ const Auth = () => {
       if (isResetPassword) {
         console.log("Attempting to update password");
         
-        // If there's an access token in the hash, use it
-        if (location.hash && location.hash.includes('access_token')) {
-          const hashParams = new URLSearchParams(location.hash.substring(1));
-          const accessToken = hashParams.get('access_token');
-          
-          if (accessToken) {
-            // Set the access token in supabase session
-            const { error } = await supabase.auth.updateUser({
-              password: newPassword,
-            });
-            
-            if (error) throw error;
-            
-            toast({
-              title: "Password Updated",
-              description: "Your password has been successfully updated.",
-            });
-            
-            // Navigate to login view
-            setIsResetPassword(false);
-          } else {
-            throw new Error("No access token found in URL");
-          }
-        } else {
-          // Normal password update flow
-          const { error } = await supabase.auth.updateUser({
-            password: newPassword,
-          });
-          
-          if (error) throw error;
-          
-          toast({
-            title: "Password Updated",
-            description: "Your password has been successfully updated.",
-          });
-          
-          setIsResetPassword(false);
-        }
+        const { error } = await supabase.auth.updateUser({
+          password: newPassword,
+        });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Password Updated",
+          description: "Your password has been successfully updated.",
+        });
+        
+        setIsResetPassword(false);
+        // Clear hash and query parameters
+        window.history.replaceState(null, '', '/auth');
         
       } else if (isForgotPassword) {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -334,6 +334,8 @@ const Auth = () => {
                 onClick={() => {
                   setIsForgotPassword(false);
                   setIsResetPassword(false);
+                  // Clear hash and query parameters when going back to sign in
+                  window.history.replaceState(null, '', '/auth');
                 }}
                 className="text-primary hover:underline text-sm"
               >
