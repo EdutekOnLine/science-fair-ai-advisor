@@ -6,6 +6,23 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// Define types for URL parameters
+interface HashParams {
+  error?: string;
+  error_code?: string;
+  access_token?: string;
+  refresh_token?: string;
+  type?: string;
+  [key: string]: string | undefined;
+}
+
+interface QueryParams {
+  verified?: string;
+  reset?: string;
+  type?: string;
+  [key: string]: string | undefined;
+}
+
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -27,7 +44,7 @@ const Auth = () => {
       });
       
       // Create a combined object of hash and query parameters for easier access
-      const hashParams = {};
+      const hashParams: HashParams = {};
       if (location.hash) {
         const hashString = location.hash.substring(1); // Remove the # character
         hashString.split('&').forEach(param => {
@@ -38,7 +55,7 @@ const Auth = () => {
         });
       }
       
-      const queryParams = {};
+      const queryParams: QueryParams = {};
       const searchParams = new URLSearchParams(location.search);
       for (const [key, value] of searchParams.entries()) {
         queryParams[key] = value;
