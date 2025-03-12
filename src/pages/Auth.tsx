@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,18 +20,17 @@ const Auth = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const getAccessTokenFromHash = () => {
+    const handleResetPasswordFlow = () => {
+      console.log("Checking reset password flow", {
+        hash: location.hash,
+        search: location.search
+      });
+      
+      // Check if we have an access token in the hash
       if (location.hash && location.hash.includes('access_token')) {
         const hashParams = new URLSearchParams(location.hash.substring(1));
-        return hashParams.get('access_token');
-      }
-      return null;
-    };
-
-    const handleHashParams = () => {
-      if (location.hash) {
-        const hashParams = new URLSearchParams(location.hash.substring(1));
         
+        // Check for error first
         if (hashParams.get('error') === 'access_denied' && 
             hashParams.get('error_code') === 'otp_expired') {
           setIsForgotPassword(true);
@@ -42,25 +42,37 @@ const Auth = () => {
           return true;
         }
         
-        if ((hashParams.get('type') === 'recovery' || location.search.includes('reset=true')) && 
+        // Check for recovery type in hash or reset=true in search
+        if ((hashParams.get('type') === 'recovery' || 
+             location.search.includes('reset=true')) && 
             hashParams.get('access_token')) {
-          
-          const accessToken = hashParams.get('access_token');
-          if (accessToken) {
-            setIsResetPassword(true);
-            toast({
-              title: "Reset Password",
-              description: "You can now set a new password for your account.",
-            });
-            return true;
-          }
+          console.log("Valid password reset link detected");
+          setIsResetPassword(true);
+          toast({
+            title: "Reset Password",
+            description: "You can now set a new password for your account.",
+          });
+          return true;
         }
       }
+      
+      // Check for recovery in search params
+      const query = new URLSearchParams(location.search);
+      if (query.get("type") === "recovery" || query.get("reset") === "true") {
+        console.log("Reset flag detected in URL parameters");
+        setIsResetPassword(true);
+        toast({
+          title: "Reset Password",
+          description: "You can now set a new password for your account.",
+        });
+        return true;
+      }
+      
       return false;
     };
     
+    // Check for email verification confirmation
     const query = new URLSearchParams(location.search);
-    
     if (query.get("verified") === "true") {
       toast({
         title: "Email Verified",
@@ -68,14 +80,8 @@ const Auth = () => {
       });
     }
     
-    if (query.get("type") === "recovery" || query.get("reset") === "true" || handleHashParams()) {
-      console.log("Password reset flow detected", { 
-        isResetPassword, 
-        hash: location.hash,
-        search: location.search
-      });
-      return;
-    }
+    // Handle reset password flow
+    handleResetPasswordFlow();
   }, [location, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,18 +90,46 @@ const Auth = () => {
 
     try {
       if (isResetPassword) {
-        const { error } = await supabase.auth.updateUser({
-          password: newPassword,
-        });
+        console.log("Attempting to update password");
         
-        if (error) throw error;
-        
-        toast({
-          title: "Password Updated",
-          description: "Your password has been successfully updated.",
-        });
-        
-        setIsResetPassword(false);
+        // If there's an access token in the hash, use it
+        if (location.hash && location.hash.includes('access_token')) {
+          const hashParams = new URLSearchParams(location.hash.substring(1));
+          const accessToken = hashParams.get('access_token');
+          
+          if (accessToken) {
+            // Set the access token in supabase session
+            const { error } = await supabase.auth.updateUser({
+              password: newPassword,
+            });
+            
+            if (error) throw error;
+            
+            toast({
+              title: "Password Updated",
+              description: "Your password has been successfully updated.",
+            });
+            
+            // Navigate to login view
+            setIsResetPassword(false);
+          } else {
+            throw new Error("No access token found in URL");
+          }
+        } else {
+          // Normal password update flow
+          const { error } = await supabase.auth.updateUser({
+            password: newPassword,
+          });
+          
+          if (error) throw error;
+          
+          toast({
+            title: "Password Updated",
+            description: "Your password has been successfully updated.",
+          });
+          
+          setIsResetPassword(false);
+        }
         
       } else if (isForgotPassword) {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
