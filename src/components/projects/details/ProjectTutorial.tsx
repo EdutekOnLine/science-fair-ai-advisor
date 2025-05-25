@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Book, ArrowRight, Check, ChevronDown, ChevronUp, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,112 +18,156 @@ export const ProjectTutorial = ({ project }: ProjectTutorialProps) => {
     const title = project.title.toLowerCase();
     const description = project.description.toLowerCase();
     
-    // Generate specific steps based on project content
+    // Robot/Arduino projects
+    if (title.includes("robot") || title.includes("arduino") || title.includes("line following")) {
+      return [
+        "Connect the Arduino board to your computer via USB cable",
+        "Install Arduino IDE software and necessary libraries",
+        "Attach the motor driver shield to the Arduino board",
+        "Connect two DC motors to the motor driver outputs (M1 and M2)",
+        "Wire the ultrasonic sensor: VCC to 5V, GND to GND, Trig to pin 7, Echo to pin 8",
+        "Connect infrared sensors underneath the chassis for line detection",
+        "Mount the Arduino and breadboard securely on the robot chassis",
+        "Attach wheels to the DC motors and ensure they rotate freely",
+        "Connect the battery pack (4 AA batteries) to power the motors",
+        "Upload the line-following code to the Arduino board",
+        "Calibrate the infrared sensors by adjusting sensitivity potentiometers",
+        "Test the robot on a simple black line track",
+        "Fine-tune the code parameters for smooth line following"
+      ];
+    }
+    
+    // Plant growth experiments
     if (title.includes("plant") && (title.includes("growth") || title.includes("light"))) {
       return [
-        "Gather identical seedlings or seeds of the same plant variety",
-        "Prepare identical pots with the same type and amount of soil",
-        "Set up different light conditions (bright light, dim light, no light)",
-        "Label each pot clearly with the light condition it will receive",
-        "Plant seeds at the same depth or place seedlings in each pot",
-        "Position pots in their designated light environments",
-        "Water each pot with the same amount of water daily",
-        "Measure and record initial plant height (if using seedlings)",
-        "Create a daily observation chart for growth measurements",
-        "Take photos of each plant setup for documentation",
-        "Measure plant height every 2-3 days at the same time",
-        "Record any changes in color, leaf development, or health",
-        "Continue observations for 2-3 weeks to see significant results"
+        "Prepare 3 identical pots with drainage holes",
+        "Fill each pot with the same type and amount of potting soil",
+        "Plant 3 identical seeds in each pot at 1cm depth",
+        "Label the pots: 'Full Light', 'Partial Light', 'No Light'",
+        "Place the 'Full Light' pot near a sunny window",
+        "Put the 'Partial Light' pot in a location with indirect sunlight",
+        "Place the 'No Light' pot in a dark closet or cover with a box",
+        "Water each pot with exactly 50ml of water every other day",
+        "Measure and record the soil temperature daily",
+        "After germination, measure plant height every 2 days with a ruler",
+        "Count and record the number of leaves on each plant",
+        "Take photos of each plant from the same angle daily",
+        "Record any color changes or unusual growth patterns",
+        "Continue observations for 3-4 weeks to see significant differences"
       ];
     }
     
+    // Volcano eruption experiments
     if (title.includes("volcano") || title.includes("eruption") || (title.includes("baking soda") && title.includes("vinegar"))) {
       return [
-        "Gather materials: baking soda, white vinegar, food coloring, dish soap, small plastic bottle",
-        "Shape clay or playdough around the bottle to create a volcano structure",
-        "Place the volcano model on a large tray to contain the 'eruption'",
-        "Add 2-3 tablespoons of baking soda to the bottle",
-        "Add 2-3 drops of red food coloring to the baking soda",
-        "Add a small squeeze of dish soap for extra foam effect",
-        "Prepare vinegar in a measuring cup (about 1/2 cup)",
-        "Set up camera or phone to record the eruption",
-        "Quickly pour vinegar into the bottle opening",
-        "Step back and observe the chemical reaction",
-        "Record the height and duration of the 'eruption'",
-        "Clean up and repeat with different amounts to test variables",
-        "Document which combination created the best eruption effect"
+        "Shape modeling clay around a small plastic bottle to form a volcano cone",
+        "Leave the bottle opening exposed at the top of the volcano",
+        "Place the volcano model on a large tray to catch overflow",
+        "Mix 3 tablespoons of baking soda with 5 drops of red food coloring",
+        "Add the colored baking soda mixture to the bottle",
+        "Squeeze in 1 teaspoon of liquid dish soap for extra foam",
+        "Prepare 1/2 cup of white vinegar in a measuring cup",
+        "Set up a camera to record the eruption from a safe distance",
+        "Quickly pour all the vinegar into the bottle opening",
+        "Step back immediately and observe the chemical reaction",
+        "Measure the height of the 'lava' flow with a ruler",
+        "Record the duration of the eruption with a stopwatch",
+        "Clean the setup and repeat with different ratios to test variables",
+        "Try adding different amounts of soap or food coloring for comparison"
       ];
     }
     
-    if (title.includes("density") || title.includes("oil") || title.includes("water") || title.includes("liquid")) {
+    // Density tower experiments
+    if (title.includes("density") || title.includes("liquid") || title.includes("layer")) {
       return [
-        "Gather different liquids: water, vegetable oil, honey, dish soap, corn syrup",
-        "Collect food coloring to make each liquid a different color",
-        "Find a tall, clear container (glass jar or clear plastic tube)",
-        "Add food coloring to water (blue), oil (yellow), dish soap (green)",
-        "Start with the densest liquid - pour honey slowly into the bottom",
-        "Slowly pour corn syrup over the back of a spoon to avoid mixing",
-        "Add dish soap next, pouring very slowly down the side of the container",
-        "Pour colored water gently over the spoon to create the next layer",
-        "Finally, add colored oil as the top layer",
-        "Observe how the liquids separate into distinct layers",
-        "Take photos showing the different density layers",
-        "Try dropping small objects to see which layer they stop in",
-        "Document the order of liquids from most to least dense"
+        "Gather liquids in order of density: honey, corn syrup, dish soap, water, vegetable oil",
+        "Add food coloring: blue to water, yellow to oil, green to dish soap",
+        "Use a tall, clear glass or plastic cylinder for best visibility",
+        "Start with honey - pour 2 tablespoons slowly into the bottom",
+        "Pour corn syrup very slowly over the back of a spoon to avoid mixing",
+        "Add the colored dish soap by letting it drip down the container wall",
+        "Pour the blue water gently over a spoon, aiming for the container side",
+        "Finally, add the yellow oil by pouring it very slowly over a spoon",
+        "Wait 5 minutes for the layers to settle and separate completely",
+        "Observe the distinct layers and their boundaries",
+        "Test by dropping small objects (grape, cork, paperclip) through the layers",
+        "Record which layer each object stops in based on its density",
+        "Take photographs showing the clear separation of all five layers",
+        "Try mixing two layers gently with a straw and observe what happens"
       ];
     }
     
+    // Magnet experiments
     if (title.includes("magnet") || title.includes("magnetic")) {
       return [
-        "Collect various small objects: paper clips, coins, keys, plastic items, wood pieces",
-        "Gather different types of magnets: bar magnet, horseshoe magnet, round magnets",
-        "Create a data chart with 'Object' and 'Magnetic/Not Magnetic' columns",
-        "Test each object by bringing the magnet close to it",
-        "Record whether each object is attracted to the magnet or not",
-        "Sort objects into two groups: magnetic and non-magnetic materials",
-        "Test the strength of attraction by seeing how close the magnet needs to be",
-        "Try the magnet through different materials (paper, cardboard, glass)",
-        "Test if the magnet works underwater by putting objects in a bowl of water",
-        "See how many paper clips can hang in a chain from the magnet",
-        "Document your findings about which materials are magnetic",
-        "Take photos of your magnetic and non-magnetic object groups",
-        "Draw conclusions about what types of materials magnets attract"
+        "Collect test objects: iron nails, aluminum foil, plastic spoon, wooden stick, copper penny",
+        "Gather different magnets: bar magnet, horseshoe magnet, round refrigerator magnets",
+        "Create a data table with columns: Object, Material, Attracted (Y/N), Distance",
+        "Test each object by slowly bringing the bar magnet closer until attraction occurs",
+        "Measure and record the distance at which attraction begins",
+        "Sort all objects into two groups: magnetic and non-magnetic",
+        "Test magnetic strength by seeing how many paperclips each magnet can hold",
+        "Place a piece of paper between the magnet and a paperclip - test if it still attracts",
+        "Try cardboard, then glass, then plastic to see if magnetism works through materials",
+        "Fill a bowl with water and test if magnetism works underwater",
+        "Create a magnetic field visualization using iron filings on paper over the magnet",
+        "Test if you can make a temporary magnet by stroking a nail with the permanent magnet",
+        "Record all observations about magnetic field strength and material interactions"
       ];
     }
     
+    // Crystal growing experiments
     if (title.includes("crystal") || title.includes("salt") || title.includes("sugar")) {
       return [
-        "Prepare hot water in a measuring cup (ask an adult for help)",
-        "Add salt or sugar to the hot water and stir until no more dissolves",
-        "Continue adding until you have a supersaturated solution",
-        "Let the solution cool to room temperature",
-        "Tie a string to a pencil and lower it into the solution",
-        "Make sure the string doesn't touch the bottom of the container",
-        "Place the container in a quiet location where it won't be disturbed",
-        "Cover with a cloth to prevent dust but allow evaporation",
-        "Check daily for crystal formation on the string",
-        "Take photos every few days to document crystal growth",
-        "Measure the size of the largest crystals as they grow",
-        "Record how long it takes for visible crystals to form",
-        "Compare crystal shapes and sizes after one week",
-        "Document the difference between salt and sugar crystal formation"
+        "Heat 2 cups of water in a microwave-safe container for 2 minutes (ask adult for help)",
+        "Slowly add salt or sugar while stirring until no more dissolves (supersaturated solution)",
+        "Continue adding 2 more tablespoons even after it stops dissolving easily",
+        "Let the solution cool to room temperature (about 30 minutes)",
+        "Tie a piece of string to a pencil, leaving 4 inches of string hanging down",
+        "Lower the string into the solution, ensuring it doesn't touch the bottom",
+        "Rest the pencil across the rim of the container to suspend the string",
+        "Cover the container with a cloth to prevent dust but allow evaporation",
+        "Place in a quiet location where it won't be disturbed for several days",
+        "Check daily and photograph any crystal formation on the string",
+        "Measure the largest crystals with a ruler every few days",
+        "Keep a daily log of crystal size, shape, and number",
+        "Compare salt crystals (cubic) with sugar crystals (different shapes)",
+        "After 1 week, carefully remove and examine crystals under a magnifying glass"
       ];
     }
     
-    // Default plan for projects that don't match specific patterns
+    // Electronics/circuit experiments
+    if (title.includes("circuit") || title.includes("led") || title.includes("battery")) {
+      return [
+        "Gather components: 9V battery, LED lights, resistors, copper wire, breadboard",
+        "Strip 1cm of insulation from both ends of each wire piece",
+        "Connect the positive (red) wire from battery to the positive rail of breadboard",
+        "Connect the negative (black) wire from battery to the negative rail of breadboard",
+        "Insert a 220-ohm resistor between the positive rail and row 1 of breadboard",
+        "Place the LED with longer leg (positive) in row 1, shorter leg in row 5",
+        "Connect row 5 to the negative rail using a jumper wire",
+        "Test the circuit - the LED should light up when battery is connected",
+        "Add a second LED in parallel by connecting it to the same rows",
+        "Try connecting LEDs in series by connecting positive of one to negative of next",
+        "Measure voltage across each component using a multimeter",
+        "Record brightness differences between parallel and series connections",
+        "Create a simple switch using aluminum foil and test circuit control"
+      ];
+    }
+    
+    // Default for unrecognized experiments
     return [
-      `Set up your workspace for the "${project.title}" experiment`,
-      "Gather all materials listed in your project materials section",
-      "Prepare your data collection method (notebook, chart, or digital recording)",
-      "Create your control group or baseline measurement",
-      "Set up your experimental conditions as described in your hypothesis",
-      "Begin the experiment following your planned procedure",
-      "Record initial observations and measurements",
-      "Monitor and document changes at regular intervals",
-      "Take photographs to document the process and results",
-      "Collect data consistently throughout the experiment duration",
-      "Analyze your results and compare them to your hypothesis",
-      "Prepare your findings for presentation and conclusion"
+      "Set up a clean, organized workspace with all materials within reach",
+      "Read through the complete procedure before starting any steps",
+      "Prepare safety equipment (goggles, gloves) if working with chemicals",
+      "Organize materials in the order they will be used in the procedure",
+      "Set up data collection sheets or digital recording method",
+      "Establish your control group or baseline measurements first",
+      "Follow the specific procedure outlined in your project plan step-by-step",
+      "Record observations and measurements at each step",
+      "Take photographs to document the setup and any changes",
+      "Repeat the procedure multiple times to ensure reliable results",
+      "Clean up properly and safely dispose of any materials as needed"
     ];
   };
 
