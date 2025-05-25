@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Book, ArrowRight, Check, ChevronDown, ChevronUp, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,80 +12,118 @@ export const ProjectTutorial = ({ project }: ProjectTutorialProps) => {
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
   const [showPlan, setShowPlan] = useState(false);
   
-  // Generate experiment construction plan
+  // Generate experiment-specific construction plan
   const generateExperimentPlan = () => {
-    const basePlan = [
-      "Review your hypothesis and ensure you understand what you're testing",
-      "Gather all materials listed for your project",
-      "Choose a suitable workspace with adequate lighting and ventilation",
-      "Set up your control group (if applicable) - this will not receive the treatment",
-      "Prepare your experimental group(s) - these will receive the treatment you're testing",
-      "Create a data collection sheet or use a notebook to record observations",
-      "Take 'before' photos or measurements to document initial conditions",
-      "Follow the experimental procedure step by step",
-      "Record data at consistent time intervals as planned",
-      "Take 'after' photos or measurements to document results",
-      "Repeat the experiment multiple times if possible for reliability",
-      "Analyze your data and compare results to your hypothesis"
+    const title = project.title.toLowerCase();
+    const description = project.description.toLowerCase();
+    
+    // Generate specific steps based on project content
+    if (title.includes("plant") && (title.includes("growth") || title.includes("light"))) {
+      return [
+        "Gather identical seedlings or seeds of the same plant variety",
+        "Prepare identical pots with the same type and amount of soil",
+        "Set up different light conditions (bright light, dim light, no light)",
+        "Label each pot clearly with the light condition it will receive",
+        "Plant seeds at the same depth or place seedlings in each pot",
+        "Position pots in their designated light environments",
+        "Water each pot with the same amount of water daily",
+        "Measure and record initial plant height (if using seedlings)",
+        "Create a daily observation chart for growth measurements",
+        "Take photos of each plant setup for documentation",
+        "Measure plant height every 2-3 days at the same time",
+        "Record any changes in color, leaf development, or health",
+        "Continue observations for 2-3 weeks to see significant results"
+      ];
+    }
+    
+    if (title.includes("volcano") || title.includes("eruption") || (title.includes("baking soda") && title.includes("vinegar"))) {
+      return [
+        "Gather materials: baking soda, white vinegar, food coloring, dish soap, small plastic bottle",
+        "Shape clay or playdough around the bottle to create a volcano structure",
+        "Place the volcano model on a large tray to contain the 'eruption'",
+        "Add 2-3 tablespoons of baking soda to the bottle",
+        "Add 2-3 drops of red food coloring to the baking soda",
+        "Add a small squeeze of dish soap for extra foam effect",
+        "Prepare vinegar in a measuring cup (about 1/2 cup)",
+        "Set up camera or phone to record the eruption",
+        "Quickly pour vinegar into the bottle opening",
+        "Step back and observe the chemical reaction",
+        "Record the height and duration of the 'eruption'",
+        "Clean up and repeat with different amounts to test variables",
+        "Document which combination created the best eruption effect"
+      ];
+    }
+    
+    if (title.includes("density") || title.includes("oil") || title.includes("water") || title.includes("liquid")) {
+      return [
+        "Gather different liquids: water, vegetable oil, honey, dish soap, corn syrup",
+        "Collect food coloring to make each liquid a different color",
+        "Find a tall, clear container (glass jar or clear plastic tube)",
+        "Add food coloring to water (blue), oil (yellow), dish soap (green)",
+        "Start with the densest liquid - pour honey slowly into the bottom",
+        "Slowly pour corn syrup over the back of a spoon to avoid mixing",
+        "Add dish soap next, pouring very slowly down the side of the container",
+        "Pour colored water gently over the spoon to create the next layer",
+        "Finally, add colored oil as the top layer",
+        "Observe how the liquids separate into distinct layers",
+        "Take photos showing the different density layers",
+        "Try dropping small objects to see which layer they stop in",
+        "Document the order of liquids from most to least dense"
+      ];
+    }
+    
+    if (title.includes("magnet") || title.includes("magnetic")) {
+      return [
+        "Collect various small objects: paper clips, coins, keys, plastic items, wood pieces",
+        "Gather different types of magnets: bar magnet, horseshoe magnet, round magnets",
+        "Create a data chart with 'Object' and 'Magnetic/Not Magnetic' columns",
+        "Test each object by bringing the magnet close to it",
+        "Record whether each object is attracted to the magnet or not",
+        "Sort objects into two groups: magnetic and non-magnetic materials",
+        "Test the strength of attraction by seeing how close the magnet needs to be",
+        "Try the magnet through different materials (paper, cardboard, glass)",
+        "Test if the magnet works underwater by putting objects in a bowl of water",
+        "See how many paper clips can hang in a chain from the magnet",
+        "Document your findings about which materials are magnetic",
+        "Take photos of your magnetic and non-magnetic object groups",
+        "Draw conclusions about what types of materials magnets attract"
+      ];
+    }
+    
+    if (title.includes("crystal") || title.includes("salt") || title.includes("sugar")) {
+      return [
+        "Prepare hot water in a measuring cup (ask an adult for help)",
+        "Add salt or sugar to the hot water and stir until no more dissolves",
+        "Continue adding until you have a supersaturated solution",
+        "Let the solution cool to room temperature",
+        "Tie a string to a pencil and lower it into the solution",
+        "Make sure the string doesn't touch the bottom of the container",
+        "Place the container in a quiet location where it won't be disturbed",
+        "Cover with a cloth to prevent dust but allow evaporation",
+        "Check daily for crystal formation on the string",
+        "Take photos every few days to document crystal growth",
+        "Measure the size of the largest crystals as they grow",
+        "Record how long it takes for visible crystals to form",
+        "Compare crystal shapes and sizes after one week",
+        "Document the difference between salt and sugar crystal formation"
+      ];
+    }
+    
+    // Default plan for projects that don't match specific patterns
+    return [
+      `Set up your workspace for the "${project.title}" experiment`,
+      "Gather all materials listed in your project materials section",
+      "Prepare your data collection method (notebook, chart, or digital recording)",
+      "Create your control group or baseline measurement",
+      "Set up your experimental conditions as described in your hypothesis",
+      "Begin the experiment following your planned procedure",
+      "Record initial observations and measurements",
+      "Monitor and document changes at regular intervals",
+      "Take photographs to document the process and results",
+      "Collect data consistently throughout the experiment duration",
+      "Analyze your results and compare them to your hypothesis",
+      "Prepare your findings for presentation and conclusion"
     ];
-
-    // Customize plan based on project category
-    if (project.category.toLowerCase().includes("biology")) {
-      return [
-        "Review your hypothesis about the biological process you're studying",
-        "Gather all biological materials and prepare proper containers",
-        "Set up a controlled environment (consistent temperature, light, etc.)",
-        "Prepare your control group - organisms that won't receive treatment",
-        "Prepare your experimental group(s) - organisms that will receive treatment",
-        "Create a daily observation schedule and data recording system",
-        "Document initial conditions (size, color, behavior, etc.)",
-        "Apply your experimental treatment according to your procedure",
-        "Monitor and record biological changes daily",
-        "Measure growth, behavior changes, or other relevant metrics",
-        "Take photos to document visual changes over time",
-        "Continue observations for the planned duration",
-        "Analyze patterns in biological responses and compare to hypothesis"
-      ];
-    }
-
-    if (project.category.toLowerCase().includes("chemistry")) {
-      return [
-        "Review your hypothesis about the chemical reaction you're testing",
-        "Gather all chemicals and safety equipment (goggles, gloves)",
-        "Set up your workspace with proper ventilation and safety measures",
-        "Prepare measuring tools (beakers, graduated cylinders, scales)",
-        "Set up your control - the reaction without the variable you're testing",
-        "Prepare your experimental setup with the variable you're testing",
-        "Create a data sheet to record temperature, color changes, gas formation",
-        "Document initial conditions and take 'before' photos",
-        "Carefully add chemicals in the correct order and amounts",
-        "Observe and record immediate reactions (bubbling, color change, heat)",
-        "Monitor the reaction progress over time",
-        "Measure final products and document end results",
-        "Safely dispose of all chemicals according to guidelines",
-        "Analyze reaction data and compare to your predicted outcome"
-      ];
-    }
-
-    if (project.category.toLowerCase().includes("physics")) {
-      return [
-        "Review your hypothesis about the physical phenomenon you're testing",
-        "Gather all equipment and measuring instruments",
-        "Set up a stable, level workspace free from vibrations",
-        "Calibrate any measuring devices (rulers, timers, scales)",
-        "Create your control setup - the standard condition for comparison",
-        "Build your experimental apparatus according to your design",
-        "Create a data collection system for measurements",
-        "Test your setup with a trial run to ensure everything works",
-        "Take baseline measurements without the variable you're testing",
-        "Apply your experimental variable (force, heat, light, etc.)",
-        "Record measurements at consistent intervals",
-        "Repeat trials multiple times for accuracy",
-        "Calculate averages and analyze patterns in your data"
-      ];
-    }
-
-    return basePlan;
   };
 
   // Generate steps based on project category and title
@@ -246,7 +283,7 @@ export const ProjectTutorial = ({ project }: ProjectTutorialProps) => {
                 <ClipboardList className="h-5 w-5 text-primary" />
                 <div>
                   <h4 className="font-medium">Experiment Construction Plan</h4>
-                  <p className="text-sm text-muted-foreground">Step-by-step construction process for your experiment</p>
+                  <p className="text-sm text-muted-foreground">Step-by-step construction process for your specific experiment</p>
                 </div>
               </div>
               {showPlan ? 
