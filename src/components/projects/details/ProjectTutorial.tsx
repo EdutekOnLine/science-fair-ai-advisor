@@ -1,8 +1,9 @@
-
 import { useState } from "react";
-import { Book, ArrowRight, Check, ChevronDown, ChevronUp, ClipboardList } from "lucide-react";
+import { Book, ArrowRight, Check, ChevronDown, ChevronUp, ClipboardList, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Project } from "@/types/project";
 
 interface ProjectTutorialProps {
@@ -12,163 +13,47 @@ interface ProjectTutorialProps {
 export const ProjectTutorial = ({ project }: ProjectTutorialProps) => {
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
   const [showPlan, setShowPlan] = useState(false);
+  const [aiPlan, setAiPlan] = useState<string | null>(null);
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const { toast } = useToast();
   
-  // Generate experiment-specific construction plan
-  const generateExperimentPlan = () => {
-    const title = project.title.toLowerCase();
-    const description = project.description.toLowerCase();
-    
-    // Robot/Arduino projects
-    if (title.includes("robot") || title.includes("arduino") || title.includes("line following")) {
-      return [
-        "Connect the Arduino board to your computer via USB cable",
-        "Install Arduino IDE software and necessary libraries",
-        "Attach the motor driver shield to the Arduino board",
-        "Connect two DC motors to the motor driver outputs (M1 and M2)",
-        "Wire the ultrasonic sensor: VCC to 5V, GND to GND, Trig to pin 7, Echo to pin 8",
-        "Connect infrared sensors underneath the chassis for line detection",
-        "Mount the Arduino and breadboard securely on the robot chassis",
-        "Attach wheels to the DC motors and ensure they rotate freely",
-        "Connect the battery pack (4 AA batteries) to power the motors",
-        "Upload the line-following code to the Arduino board",
-        "Calibrate the infrared sensors by adjusting sensitivity potentiometers",
-        "Test the robot on a simple black line track",
-        "Fine-tune the code parameters for smooth line following"
-      ];
+  const generateAIExperimentPlan = async () => {
+    setIsGeneratingPlan(true);
+    try {
+      console.log('Generating AI experiment plan for:', project.title);
+      
+      const { data, error } = await supabase.functions.invoke('experiment-planner', {
+        body: {
+          projectTitle: project.title,
+          projectDescription: project.description,
+          hypothesis: project.hypothesis,
+          materials: project.materials || []
+        }
+      });
+
+      if (error) {
+        console.error('Error generating experiment plan:', error);
+        toast({
+          title: "Error generating plan",
+          description: "Failed to generate AI experiment plan. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('AI experiment plan generated successfully');
+      setAiPlan(data.plan);
+      setShowPlan(true);
+    } catch (error) {
+      console.error('Error calling experiment planner:', error);
+      toast({
+        title: "Error generating plan",
+        description: "Failed to generate AI experiment plan. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPlan(false);
     }
-    
-    // Plant growth experiments
-    if (title.includes("plant") && (title.includes("growth") || title.includes("light"))) {
-      return [
-        "Prepare 3 identical pots with drainage holes",
-        "Fill each pot with the same type and amount of potting soil",
-        "Plant 3 identical seeds in each pot at 1cm depth",
-        "Label the pots: 'Full Light', 'Partial Light', 'No Light'",
-        "Place the 'Full Light' pot near a sunny window",
-        "Put the 'Partial Light' pot in a location with indirect sunlight",
-        "Place the 'No Light' pot in a dark closet or cover with a box",
-        "Water each pot with exactly 50ml of water every other day",
-        "Measure and record the soil temperature daily",
-        "After germination, measure plant height every 2 days with a ruler",
-        "Count and record the number of leaves on each plant",
-        "Take photos of each plant from the same angle daily",
-        "Record any color changes or unusual growth patterns",
-        "Continue observations for 3-4 weeks to see significant differences"
-      ];
-    }
-    
-    // Volcano eruption experiments
-    if (title.includes("volcano") || title.includes("eruption") || (title.includes("baking soda") && title.includes("vinegar"))) {
-      return [
-        "Shape modeling clay around a small plastic bottle to form a volcano cone",
-        "Leave the bottle opening exposed at the top of the volcano",
-        "Place the volcano model on a large tray to catch overflow",
-        "Mix 3 tablespoons of baking soda with 5 drops of red food coloring",
-        "Add the colored baking soda mixture to the bottle",
-        "Squeeze in 1 teaspoon of liquid dish soap for extra foam",
-        "Prepare 1/2 cup of white vinegar in a measuring cup",
-        "Set up a camera to record the eruption from a safe distance",
-        "Quickly pour all the vinegar into the bottle opening",
-        "Step back immediately and observe the chemical reaction",
-        "Measure the height of the 'lava' flow with a ruler",
-        "Record the duration of the eruption with a stopwatch",
-        "Clean the setup and repeat with different ratios to test variables",
-        "Try adding different amounts of soap or food coloring for comparison"
-      ];
-    }
-    
-    // Density tower experiments
-    if (title.includes("density") || title.includes("liquid") || title.includes("layer")) {
-      return [
-        "Gather liquids in order of density: honey, corn syrup, dish soap, water, vegetable oil",
-        "Add food coloring: blue to water, yellow to oil, green to dish soap",
-        "Use a tall, clear glass or plastic cylinder for best visibility",
-        "Start with honey - pour 2 tablespoons slowly into the bottom",
-        "Pour corn syrup very slowly over the back of a spoon to avoid mixing",
-        "Add the colored dish soap by letting it drip down the container wall",
-        "Pour the blue water gently over a spoon, aiming for the container side",
-        "Finally, add the yellow oil by pouring it very slowly over a spoon",
-        "Wait 5 minutes for the layers to settle and separate completely",
-        "Observe the distinct layers and their boundaries",
-        "Test by dropping small objects (grape, cork, paperclip) through the layers",
-        "Record which layer each object stops in based on its density",
-        "Take photographs showing the clear separation of all five layers",
-        "Try mixing two layers gently with a straw and observe what happens"
-      ];
-    }
-    
-    // Magnet experiments
-    if (title.includes("magnet") || title.includes("magnetic")) {
-      return [
-        "Collect test objects: iron nails, aluminum foil, plastic spoon, wooden stick, copper penny",
-        "Gather different magnets: bar magnet, horseshoe magnet, round refrigerator magnets",
-        "Create a data table with columns: Object, Material, Attracted (Y/N), Distance",
-        "Test each object by slowly bringing the bar magnet closer until attraction occurs",
-        "Measure and record the distance at which attraction begins",
-        "Sort all objects into two groups: magnetic and non-magnetic",
-        "Test magnetic strength by seeing how many paperclips each magnet can hold",
-        "Place a piece of paper between the magnet and a paperclip - test if it still attracts",
-        "Try cardboard, then glass, then plastic to see if magnetism works through materials",
-        "Fill a bowl with water and test if magnetism works underwater",
-        "Create a magnetic field visualization using iron filings on paper over the magnet",
-        "Test if you can make a temporary magnet by stroking a nail with the permanent magnet",
-        "Record all observations about magnetic field strength and material interactions"
-      ];
-    }
-    
-    // Crystal growing experiments
-    if (title.includes("crystal") || title.includes("salt") || title.includes("sugar")) {
-      return [
-        "Heat 2 cups of water in a microwave-safe container for 2 minutes (ask adult for help)",
-        "Slowly add salt or sugar while stirring until no more dissolves (supersaturated solution)",
-        "Continue adding 2 more tablespoons even after it stops dissolving easily",
-        "Let the solution cool to room temperature (about 30 minutes)",
-        "Tie a piece of string to a pencil, leaving 4 inches of string hanging down",
-        "Lower the string into the solution, ensuring it doesn't touch the bottom",
-        "Rest the pencil across the rim of the container to suspend the string",
-        "Cover the container with a cloth to prevent dust but allow evaporation",
-        "Place in a quiet location where it won't be disturbed for several days",
-        "Check daily and photograph any crystal formation on the string",
-        "Measure the largest crystals with a ruler every few days",
-        "Keep a daily log of crystal size, shape, and number",
-        "Compare salt crystals (cubic) with sugar crystals (different shapes)",
-        "After 1 week, carefully remove and examine crystals under a magnifying glass"
-      ];
-    }
-    
-    // Electronics/circuit experiments
-    if (title.includes("circuit") || title.includes("led") || title.includes("battery")) {
-      return [
-        "Gather components: 9V battery, LED lights, resistors, copper wire, breadboard",
-        "Strip 1cm of insulation from both ends of each wire piece",
-        "Connect the positive (red) wire from battery to the positive rail of breadboard",
-        "Connect the negative (black) wire from battery to the negative rail of breadboard",
-        "Insert a 220-ohm resistor between the positive rail and row 1 of breadboard",
-        "Place the LED with longer leg (positive) in row 1, shorter leg in row 5",
-        "Connect row 5 to the negative rail using a jumper wire",
-        "Test the circuit - the LED should light up when battery is connected",
-        "Add a second LED in parallel by connecting it to the same rows",
-        "Try connecting LEDs in series by connecting positive of one to negative of next",
-        "Measure voltage across each component using a multimeter",
-        "Record brightness differences between parallel and series connections",
-        "Create a simple switch using aluminum foil and test circuit control"
-      ];
-    }
-    
-    // Default for unrecognized experiments
-    return [
-      "Set up a clean, organized workspace with all materials within reach",
-      "Read through the complete procedure before starting any steps",
-      "Prepare safety equipment (goggles, gloves) if working with chemicals",
-      "Organize materials in the order they will be used in the procedure",
-      "Set up data collection sheets or digital recording method",
-      "Establish your control group or baseline measurements first",
-      "Follow the specific procedure outlined in your project plan step-by-step",
-      "Record observations and measurements at each step",
-      "Take photographs to document the setup and any changes",
-      "Repeat the procedure multiple times to ensure reliable results",
-      "Clean up properly and safely dispose of any materials as needed"
-    ];
   };
 
   // Generate steps based on project category and title
@@ -287,7 +172,6 @@ export const ProjectTutorial = ({ project }: ProjectTutorialProps) => {
   };
 
   const steps = generateSteps();
-  const experimentPlan = generateExperimentPlan();
 
   const toggleStep = (index: number) => {
     if (expandedStep === index) {
@@ -305,6 +189,46 @@ export const ProjectTutorial = ({ project }: ProjectTutorialProps) => {
     }
   };
 
+  const renderAIPlan = () => {
+    if (!aiPlan) return null;
+
+    // Split the AI response into sections and format it nicely
+    const sections = aiPlan.split(/\d+\.\s+/).filter(section => section.trim());
+    
+    return (
+      <div className="space-y-4">
+        {sections.map((section, index) => {
+          const lines = section.split('\n').filter(line => line.trim());
+          const title = lines[0];
+          const content = lines.slice(1);
+          
+          return (
+            <div key={index} className="border-l-4 border-primary/30 pl-4">
+              <h5 className="font-semibold text-primary mb-2">{index + 1}. {title}</h5>
+              <div className="space-y-1">
+                {content.map((line, lineIndex) => {
+                  if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+                    return (
+                      <div key={lineIndex} className="flex items-start gap-2 ml-4">
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary/60 mt-2 flex-shrink-0" />
+                        <span className="text-sm">{line.replace(/^[-•]\s*/, '')}</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <p key={lineIndex} className="text-sm text-muted-foreground">
+                      {line}
+                    </p>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -314,50 +238,83 @@ export const ProjectTutorial = ({ project }: ProjectTutorialProps) => {
         </h3>
 
         <p className="text-muted-foreground mb-6">
-          Follow these detailed steps to complete your project successfully. Start with the experiment construction plan, then follow the detailed tutorial steps.
+          Follow these detailed steps to complete your project successfully. Start with the AI-generated experiment plan, then follow the detailed tutorial steps.
         </p>
 
-        {/* Experiment Construction Plan Section */}
+        {/* AI Experiment Construction Plan Section */}
         <div className="mb-6">
           <div 
-            className={`border rounded-lg overflow-hidden cursor-pointer ${showPlan ? 'bg-primary/10' : 'bg-background'}`}
-            onClick={() => setShowPlan(!showPlan)}
+            className={`border rounded-lg overflow-hidden ${showPlan && aiPlan ? 'bg-primary/10' : 'bg-background'}`}
           >
             <div className="flex items-center justify-between p-4">
               <div className="flex items-center gap-3">
                 <ClipboardList className="h-5 w-5 text-primary" />
                 <div>
-                  <h4 className="font-medium">Experiment Construction Plan</h4>
-                  <p className="text-sm text-muted-foreground">Step-by-step construction process for your specific experiment</p>
+                  <h4 className="font-medium">AI Experiment Construction Plan</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {aiPlan ? 'AI-generated step-by-step construction process' : 'Generate a detailed construction plan using AI'}
+                  </p>
                 </div>
               </div>
-              {showPlan ? 
-                <ChevronUp className="h-5 w-5" /> : 
-                <ChevronDown className="h-5 w-5" />
-              }
+              
+              <div className="flex items-center gap-2">
+                {!aiPlan && (
+                  <Button 
+                    onClick={generateAIExperimentPlan}
+                    disabled={isGeneratingPlan}
+                    size="sm"
+                  >
+                    {isGeneratingPlan ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Generating...
+                      </>
+                    ) : (
+                      'Generate Plan'
+                    )}
+                  </Button>
+                )}
+                
+                {aiPlan && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPlan(!showPlan)}
+                  >
+                    {showPlan ? 
+                      <ChevronUp className="h-5 w-5" /> : 
+                      <ChevronDown className="h-5 w-5" />
+                    }
+                  </Button>
+                )}
+              </div>
             </div>
             
-            {showPlan && (
+            {showPlan && aiPlan && (
               <div className="p-4 bg-muted/30 border-t">
-                <ol className="space-y-3 pl-4">
-                  {experimentPlan.map((step, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-sm flex-shrink-0 mt-0.5">
-                        {index + 1}
-                      </div>
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
+                {renderAIPlan()}
                 
-                <div className="flex justify-end mt-4">
+                <div className="flex justify-between mt-6">
                   <Button 
                     variant="outline"
                     size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowPlan(false);
-                    }}
+                    onClick={generateAIExperimentPlan}
+                    disabled={isGeneratingPlan}
+                  >
+                    {isGeneratingPlan ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Regenerating...
+                      </>
+                    ) : (
+                      'Regenerate Plan'
+                    )}
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowPlan(false)}
                   >
                     Close Plan
                   </Button>
